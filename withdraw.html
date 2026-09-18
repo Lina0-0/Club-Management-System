@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Withdraw Request Form</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				background: #18263d;
+				margin: 0;
+				padding: 20px;
+				display: flex;
+				justify-content: center;
+				align-items: flex-start; 
+				min-height: 100vh;
+			}
+			.container {
+				width: 500px;
+				max-width: 100%;
+				background: #09192b;
+				border: 2px solid #019cc2;
+				border-radius: 12px;
+				padding: 25px;
+				box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+			}
+			h1{
+				text-align: center;
+				margin-bottom: 20px;
+				color: white;
+				font-weight: bold;
+				text-decoration: italic;
+			}
+			label {
+				display: block;
+				margin-top: 10px;
+				font-weight: bold;
+				color: #ffffff;
+			}
+			input[type="text"],
+			select,
+			textarea {
+				width: 100%;
+				padding: 10px;
+				margin-top: 6px;
+				border-radius: 8px;
+				border: 1px solid #cbd5e1;
+				box-sizing: border-box;
+				font-size: 14px;
+				background-color:#09192b;
+				color: #fff;
+			}
+			input:focus,
+			textarea:focus,
+			select:focus {
+				border-color: #00B8E6;
+				outline: none;
+			}
+			textarea {
+				resize: none;
+			}
+			button {
+				margin-top: 15px;
+				width: 100%;
+				padding: 12px;
+				background: linear-gradient(135deg, #0c4761, #6d9db5);
+				border: none;
+				border-radius: 8px;
+				color: #fff;
+				font-size: 15px;
+				cursor: pointer;
+				transition: 0.3s;
+			}
+			button:hover {
+				background: linear-gradient(135deg, #2a596b, #024364);
+				transform: scale(1.02);
+			}
+			p{
+				color: #00B8E6;
+				font-weight: bold;
+				padding-top: 30px;
+				margin-top: 0px;
+			}
+
+			hr{
+				border: solid 1px #00B8E6;
+				margin: 30px;
+				margin-bottom: 0px;
+			}
+
+			.error-message {
+			color: #ff4444;
+			font-size: 12px;
+			margin-top: 5px;
+			display: none;
+			}
+			.success-message {
+				color: #4ecb71;
+				font-size: 12px;
+				margin-top: 5px;
+				display: none;
+				text-align: center;
+			}
+
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h1>hello</h1>
+				<form id="withdrawForm">
+					<p>Personal Information</p>
+
+					<label>Full Name</label>
+					<input type="text" name="fullname" value="@" id="fullname" required>
+
+					<label>Registration Number</label>
+					<input type="text" name="ID" id="ID" required>
+
+					<hr>
+
+					<p>Details</p>
+
+					<label>Select Sub-department</label>
+					<select name="subdepartment" id="subdepartment" required>
+						<option value="" disabled selected></option>
+						<option value="Training and Education Sub-department">Training and Education Sub-department</option>
+						<option value="Research Sub-department">Research Sub-department</option>
+						<option value="Workshops Sub-department">Workshops Sub-department</option>
+						<option value="Events Sub-department">Event Sub-department</option>
+						<option value="Media and Communication Sub-department">Media and Communication Sub-department</option>
+						<option value="Administration Sub-department">Administration Sub-department</option>
+						<option value="Partnership and Sponsorship Sub-department">Partnership and Sponsorship Sub-department</option>
+						<option value="Logistics and Equipment Sub-department">Logistics and Equipement Sub-department</option>
+					</select>
+					
+					<label>Why are you Withdrawing from this department?</label>
+					<textarea rows="3" id="withdrawReason" name="withdrawReason" required></textarea>
+					<div id="withdrawReasonError" class="error-message"></div>
+						
+					<div class="confirmation">
+						<label><input type="checkbox" id="confirmation" name="confirmation" value="confirmation" required>I confirm that I want to withdraw my membership.</label>
+					</div>
+
+					<div class="error-message" id="Error-message"></div>
+					<div id="formMessage" class="success-message"></div>
+
+					<button type="submit">Submit</button>
+
+				</form>
+		</div>
+		<script>
+			document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
+			e.preventDefault();
+			const formData = new FormData(e.target);
+			const fullname = formData.get('fullname');
+			const ID = formData.get('ID');
+			const subdepartment = formData.get('subdepartment');
+			const withdrawReason = formData.get('withdrawReason');
+			
+			document.getElementById('withdrawReasonError').style.display = 'none';
+			document.getElementById('Error-message').style.display = 'none';
+			
+			const withdrawReasonValidation = validateWithdrawReason(withdrawReason);
+			if (!withdrawReasonValidation.valid) {
+				document.getElementById('withdrawReasonError').style.display = 'block';
+				document.getElementById('withdrawReasonError').innerHTML = '⚠️ ' + withdrawReasonValidation.message;
+				return;
+			}
+			
+			const response = await fetch('/api/submit-withdraw-request', {
+				method: 'POST',
+				headers: {'Content-Type': 'application/json'},
+				body: JSON.stringify({
+					fullname: fullname,
+					ID: ID,
+					subdepartment : subdepartment,
+					withdrawReason: withdrawReason
+				})
+			});
+			
+			const result = await response.json();
+			
+			const messageDiv = document.getElementById('Error-message');
+			messageDiv.style.display = 'block';
+			
+			if (result.success) {
+				messageDiv.style.color = '#4ecb71';
+				messageDiv.innerHTML = '✅ ' + result.message;
+				setTimeout(() => {
+					if (window.parent && window.parent.closePanel) {
+						window.parent.closePanel();
+					}
+				}, 1000);
+			} else {
+				messageDiv.style.color = '#ff4444';
+				messageDiv.innerHTML = '❌ ' + result.message;
+			}
+		});
+
+		function countWords(text) {
+			return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+		}
+
+		function validateWithdrawReason(text) {
+			const wordCount = countWords(text);
+			if (wordCount < 10) {
+				return { valid: false, message: `Withdraw reason must be at least 10 words (currently ${wordCount} words)` };
+			}
+			return { valid: true, message: '' };
+		}
+
+		document.getElementById('withdrawReason').addEventListener('input', function() {
+			const result = validateWithdrawReason(this.value);
+			const errorDiv = document.getElementById('withdrawReasonError');
+			if (!result.valid) {
+				errorDiv.style.display = 'block';
+				errorDiv.innerHTML = '⚠️ ' + result.message;
+			} else {
+				errorDiv.style.display = 'none';
+			}
+		});
+
+	window.openPanel = function(page) {
+		console.log("openPanel called for:", page);
+		const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+		let url = currentUser ? `${page}?role=${currentUser.role}` : 'login.html';
+		window.open(url, '_blank');
+	};
+
+		</script>
+</body>
+</html>

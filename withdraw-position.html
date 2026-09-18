@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>WithDraw {{Position}} Form</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				background: #18263d;
+				margin: 0;
+				padding: 20px;
+				display: flex;
+				justify-content: center;
+				align-items: flex-start; 
+				min-height: 100vh;
+			}
+			.container {
+				width: 500px;
+				max-width: 100%;
+				background: #09192b;
+				border: 2px solid #019cc2;
+				border-radius: 12px;
+				padding: 25px;
+				box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+			}
+			h1{
+				text-align: center;
+				margin-bottom: 20px;
+				color: white;
+				font-weight: bold;
+				text-decoration: italic;
+			}
+			label {
+				display: block;
+				margin-top: 10px;
+				font-weight: bold;
+				color: #ffffff;
+			}
+			input[type="text"],
+			select,
+			textarea {
+				width: 100%;
+				padding: 10px;
+				margin-top: 6px;
+				border-radius: 8px;
+				border: 1px solid #cbd5e1;
+				box-sizing: border-box;
+				font-size: 14px;
+				background-color:#09192b;
+				color: #fff;
+			}
+			input:focus,
+			textarea:focus {
+				border-color: #00B8E6;
+				outline: none;
+			}
+			textarea {
+				resize: none;
+			}
+			button {
+				margin-top: 15px;
+				width: 100%;
+				padding: 12px;
+				background: linear-gradient(135deg, #0c4761, #6d9db5);
+				border: none;
+				border-radius: 8px;
+				color: #fff;
+				font-size: 15px;
+				cursor: pointer;
+				transition: 0.3s;
+			}
+			button:hover {
+				background: linear-gradient(135deg, #2a596b, #024364);
+				transform: scale(1.02);
+			}
+			p{
+				color: #00B8E6;
+				font-weight: bold;
+				padding-top: 30px;
+				margin-top: 0px;
+			}
+
+			hr{
+				border: solid 1px #00B8E6;
+				margin: 30px;
+				margin-bottom: 0px;
+			}
+
+			.error-message {
+			color: #ff4444;
+			font-size: 12px;
+			margin-top: 5px;
+			display: none;
+		}
+		.success-message {
+			color: #4ecb71;
+			font-size: 12px;
+			margin-top: 5px;
+			display: none;
+			text-align: center;
+		}
+		.hidden {
+			display: none;
+		}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h1>WithDraw <span id="positionTitle">Position</span> Request Form</h1>
+			<form id="withdrawPositionForm">
+				<p>Personal Information</p>
+				<label>Full Name</label>
+				<input type="text" id="fullname1" value="@" name="fullname1" required>
+
+				<label>Registration Number</label>
+				<input type="text" id="ID1" name="ID1" required>
+
+				<hr>
+
+				<p>Details</p>
+
+				<div id="departmentContainer" class="hidden">
+					<label>Select department</label>
+					<select name="department" id="department" required>
+						<option value="" disabled selected></option>
+						<option value="Scientific Department">Scientific department</option>
+						<option value="Events and Communication Department">Events & Communication Department</option>
+						<option value="Administration and Logistics  Department">Administration & Logistics Department</option>
+					</select>
+				</div>
+
+				<div id="subdepartmentContainer" class="">
+					<label>Select Sub-department</label>
+					<select name="subdepartment" id="subdepartment" required>
+						<option value="" disabled selected></option>
+						<option value="Training and Education Sub-department">Training and Education Sub-department</option>
+						<option value="Research Sub-department">Research Sub-department</option>
+						<option value="Workshops Sub-department">Workshops Sub-department</option>
+						<option value="Events Sub-department">Events Sub-department</option>
+						<option value="Media and Communication Sub-department">Media and Communication Sub-department</option>
+						<option value="Administration Sub-department">Administration Sub-department</option>
+						<option value="Partnership and Sponsorship Sub-department">Partnership and Sponsorship Sub-department</option>
+						<option value="Logistics and Equipment Sub-department">Logistics and Equipment Sub-department</option>
+					</select>
+				</div>
+
+				<label>Why are you Withdrawing from this club?</label>
+				<textarea rows="3" id="withdrawPositionReason" name="withdrawPositionReason" required></textarea>
+				<div id="withdrawPositionReasonError" class="error-message"></div>
+
+				<hr>
+
+				<p>Replacement Information</p>
+
+				<label>Replacement Full Name</label>
+				<input type="text" id="fullname2" value="@" name="fullname2" required>
+
+
+				<label>Replacement Registration Number</label>
+				<input type="text" id="ID2" name="ID2" required>
+
+				<label>Why do you recommend this person?</label>
+				<textarea rows="3" id="recommendationReason" name="recommendationReason" required></textarea>
+				<div id="recommendationReasonError" class="error-message"></div>
+
+				<div class="confirmation">
+					<label><input type="checkbox" name="confirmation" value="confirmation" required>I confirm that I am voluntarily resigning from my position.</label>
+				</div>
+
+				<div class="error-message" id="Error-message"></div>
+				<div id="formMessage" class="success-message"></div>
+
+				<button type="submit">Submit</button>
+			</form>
+		</div>
+		<script>
+	function getUrlParams() {
+		const urlParams = new URLSearchParams(window.location.search);
+		return {
+			role: urlParams.get('role')
+		};
+	}
+
+	const params = getUrlParams();
+	
+	const departmentContainer = document.getElementById('departmentContainer');
+	const subdepartmentContainer = document.getElementById('subdepartmentContainer');
+	const departmentSelect = document.getElementById('department');
+	const subdepartmentSelect = document.getElementById('subdepartment');
+	const positionTitle = document.getElementById('positionTitle');
+
+	function updateDropdownsBasedOnRole(role) {
+		
+		departmentContainer.classList.add('hidden');
+		subdepartmentContainer.classList.add('hidden');
+		
+		departmentSelect.required = false;
+		subdepartmentSelect.required = false;
+		
+		if (role === 'manager') {
+		
+			departmentContainer.classList.remove('hidden');
+			departmentSelect.required = true;
+		} else if (role === 'instructor') {
+			
+			departmentContainer.classList.remove('hidden');
+			departmentSelect.required = true;
+		}
+		
+	}
+
+	function updateSubdepartments() {
+		const selectedDepartment = departmentSelect.value;
+		const role = params.role;
+
+		if (role === "instructor" && selectedDepartment) {
+			subdepartmentContainer.classList.remove('hidden');
+			subdepartmentSelect.required = true;
+			
+			subdepartmentSelect.innerHTML = '<option value="" disabled selected>Select sub-department</option>';
+			
+			let subdepartments = [];
+			
+			if (selectedDepartment === 'Scientific Department') {
+				subdepartments = [
+					'Training and Education Sub-department',
+					'Research Sub-department',
+					'Workshops Sub-department'
+				];
+			} else if (selectedDepartment === 'Events and Communication Department') {
+				subdepartments = [
+					'Events Sub-department',
+					'Media and Communiaction Sub-department'
+				];
+			} else if (selectedDepartment === 'Administration and Logistics  Department') {
+				subdepartments = [
+					'Administration Sub-department',
+					'Partnership and Sponsorship Sub-department',
+					'Logistics and Equipment Sub-department'
+				];
+			}
+			
+			subdepartments.forEach(sub => {
+				const option = document.createElement('option');
+				option.value = sub;
+				option.textContent = sub;
+				subdepartmentSelect.appendChild(option);
+			});
+		} else {
+			subdepartmentContainer.classList.add('hidden');
+			subdepartmentSelect.required = false;
+		}
+	}
+
+	if (params.role) {
+		positionTitle.textContent = params.role;
+		updateDropdownsBasedOnRole(params.role);
+	}
+
+	departmentSelect.addEventListener('change', updateSubdepartments);
+
+	document.getElementById('withdrawPositionForm').addEventListener('submit', async (e) => {
+		e.preventDefault();
+		
+		const formData = new FormData(e.target);
+		const fullname1 = formData.get('fullname1');
+		const ID1 = formData.get('ID1');
+		const fullname2 = formData.get('fullname2');
+		const ID2 = formData.get('ID2');
+		const withdrawPositionReason = formData.get('withdrawPositionReason');
+		const recommendationReason = formData.get('recommendationReason');
+		const department = formData.get('department');
+		const subdepartment = formData.get('subdepartment');
+		const confirmation = formData.get('confirmation');
+		
+		document.getElementById('withdrawPositionReasonError').style.display = 'none';
+		document.getElementById('recommendationReasonError').style.display = 'none';
+		document.getElementById('Error-message').style.display = 'none';
+		
+		if (!confirmation) {
+			document.getElementById('Error-message').style.display = 'block';
+			document.getElementById('Error-message').style.color = '#ff4444';
+			document.getElementById('Error-message').innerHTML = '❌ Please confirm that you are voluntarily resigning';
+			return;
+		}
+		
+		const withdrawPositionResult = validateWithdrawPositionReason(withdrawPositionReason);
+		if (!withdrawPositionResult.valid) {
+			document.getElementById('withdrawPositionReasonError').style.display = 'block';
+			document.getElementById('withdrawPositionReasonError').innerHTML = '⚠️ ' + withdrawPositionResult.message;
+			return;
+		}
+
+		const recommendationResult = validateRecommendationReason(recommendationReason);
+		if (!recommendationResult.valid) {
+			document.getElementById('recommendationReasonError').style.display = 'block';
+			document.getElementById('recommendationReasonError').innerHTML = '⚠️ ' + recommendationResult.message;
+			return;
+		}
+		
+		const response = await fetch('/api/submit-withdraw-position-request', {
+			method: 'POST',
+			headers: {'Content-Type': 'application/json'},
+			body: JSON.stringify({
+				intendedRole: params.role,
+				fullname1: fullname1,
+				ID1: Number(ID1),
+				fullname2: fullname2,
+				ID2: Number(ID2),
+				withdrawPositionReason: withdrawPositionReason,
+				recommendationReason: recommendationReason,
+				department: department,
+				subdepartment: subdepartment
+			})
+		});
+		
+		const result = await response.json();
+		
+		const messageDiv = document.getElementById('Error-message');
+		messageDiv.style.display = 'block';
+		
+		if (result.success) {
+			messageDiv.style.color = '#4ecb71';
+			messageDiv.innerHTML = '✅ ' + result.message;
+			setTimeout(() => {
+				if (window.parent && window.parent.closePanel) {
+					window.parent.closePanel();
+				}
+			}, 1000);
+		} else {
+			messageDiv.style.color = '#ff4444';
+			messageDiv.innerHTML = '❌ ' + result.message;
+		}
+	});
+
+	function countWords(text) {
+		if (!text) return 0;
+		return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+	}
+
+	function validateWithdrawPositionReason(text) {
+		const wordCount = countWords(text);
+		if (wordCount < 10) {
+			return { valid: false, message: `Withdraw reason must be at least 10 words (currently ${wordCount} words)` };
+		}
+		if (wordCount > 500) {
+			return { valid: false, message: `Withdraw reason cannot exceed 500 words (currently ${wordCount} words)` };
+		}
+		return { valid: true, message: '' };
+	}
+
+	function validateRecommendationReason(text) {
+		const wordCount = countWords(text);
+		if (wordCount < 10) {
+			return { valid: false, message: `Recommendation reason must be at least 10 words (currently ${wordCount} words)` };
+		}
+		if (wordCount > 500) {
+			return { valid: false, message: `Recommendation reason cannot exceed 500 words (currently ${wordCount} words)` };
+		}
+		return { valid: true, message: '' };
+	}
+
+	document.getElementById('withdrawPositionReason').addEventListener('input', function() {
+		const result = validateWithdrawPositionReason(this.value);
+		const errorDiv = document.getElementById('withdrawPositionReasonError');
+		if (!result.valid) {
+			errorDiv.style.display = 'block';
+			errorDiv.innerHTML = '⚠️ ' + result.message;
+		} else {
+			errorDiv.style.display = 'none';
+		}
+	});
+
+	document.getElementById('recommendationReason').addEventListener('input', function() {
+		const result = validateRecommendationReason(this.value);
+		const errorDiv = document.getElementById('recommendationReasonError');
+		if (!result.valid) {
+			errorDiv.style.display = 'block';
+			errorDiv.innerHTML = '⚠️ ' + result.message;
+		} else {
+			errorDiv.style.display = 'none';
+		}
+	});
+
+	window.openPanel = function(page) {
+		console.log("openPanel called for:", page);
+		const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+		let url = currentUser ? `${page}?role=${currentUser.role}` : 'login.html';
+		window.open(url, '_blank');
+	};
+</script>
+	</body>
+</html>

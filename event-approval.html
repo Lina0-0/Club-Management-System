@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Event Approval Request Form</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				background: #18263d;
+				margin: 0;
+				padding: 20px;
+				display: flex;
+				justify-content: center;
+				align-items: flex-start; 
+				min-height: 100vh;
+			}
+			.container {
+				width: 500px;
+				max-width: 100%;
+				background: #09192b;
+				border: 2px solid #019cc2;
+				border-radius: 12px;
+				padding: 25px;
+				box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+			}
+			h1{
+				text-align: center;
+				margin-bottom: 20px;
+				color: white;
+				font-weight: bold;
+				text-decoration: italic;
+			}
+			label {
+				display: block;
+				margin-top: 10px;
+				font-weight: bold;
+				color: #ffffff;
+			}
+			input[type="text"],
+			input[type="date"],
+			input[type="time"],
+			textarea,
+			select {
+				width: 100%;
+				padding: 10px;
+				margin-top: 6px;
+				border-radius: 8px;
+				border: 1px solid #cbd5e1;
+				box-sizing: border-box;
+				font-size: 14px;
+				background-color:#09192b;
+				color: #fff;
+			}
+			input:focus,
+			textarea:focus,
+			select:focus {
+				border-color: #00B8E6;
+				outline: none;
+			}
+			textarea {
+				resize: none;
+			}
+			button {
+				margin-top: 15px;
+				width: 100%;
+				padding: 12px;
+				background: linear-gradient(135deg, #0c4761, #6d9db5);
+				border: none;
+				border-radius: 8px;
+				color: #fff;
+				font-size: 15px;
+				cursor: pointer;
+				transition: 0.3s;
+			}
+			button:hover {
+				background: linear-gradient(135deg, #2a596b, #024364);
+				transform: scale(1.02);
+			}
+			option{
+				font-size: 19px;
+			}
+			p{
+				color: #00B8E6;
+				font-weight: bold;
+				padding-top: 30px;
+				margin-top: 0px;
+			}
+
+			hr{
+				border: solid 1px #00B8E6;
+				margin: 30px;
+				margin-bottom: 0px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h1>Event Approval Request Form</h1>
+			<form>
+				<p>Event Information</p>
+				<label>Event Title</label>
+				<input type="text" name="event_title" required>
+				<label>Event Description</label>
+				<textarea rows="4" name="event_description" required></textarea>
+				<label>Which sub-department does this event primarily target?</label>
+				<select name="subdepartment" id="subdepartment" required>
+					<option value="" disabled selected></option>
+					<option value="Training">Training and Education</option>
+					<option value="Research">Research</option>
+					<option value="Workshops">Workshops</option>
+					<option value="Event">Event</option>
+					<option value="Media and Communication">Media and Communication</option>
+					<option value="Administration">Administration</option>
+					<option value="Partnership and Sponsorship">Partnership and Sponsorship</option>
+					<option value="Logistics and Equipement">Logistics and Equipement</option>
+				</select>
+				<label>Event Location</label>
+				<input type="text" name="event_location" required>
+				<label>Event Date</label>
+				<input type="date" name="event_date" required>
+				<label>Event Time </label>
+				<input type="time" name="event_time" required>
+				<label>Event Expected Duration</label>
+				<input type="text" name="event_duration" required>
+				<label>Expected Number Of Participants</label>
+				<input type="text" name="participants" required>
+				<label>Required Resources</label>
+				<textarea rows="3" name="resources"></textarea>
+				<hr>
+				<p>Organizer Information</p>
+				<label>Event Organizer Name</label>
+				<input type="text" id="fullname" required>
+				<label>Registration Number</label>
+				<input type="text" name="id" required>
+				<label>Position</label>
+				<select name="position" id="position" required>
+					<option value="" disabled selected></option>
+					<option value="Training">Manager</option>
+					<option value="Research">Vice-President</option>
+					<option value="Workshops">President</option>
+				</select>
+				<div class="confirmation">
+					<label>
+						<input type="checkbox" name="confirmation" value="confirmation" required>
+						I confirm that the informations provided is accurate and that the club will comply with all university\club rules and safety guidelines.
+					</label>
+			  </div>
+			  <button type="submit">Submit</button>
+		  </form>
+	  </div>
+		
+	</body>
+</html>

@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Nomination Request Form</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				background: #18263d;
+				margin: 0;
+				padding: 20px;
+				display: flex;
+				justify-content: center;
+				align-items: flex-start; 
+				min-height: 100vh;
+			}
+			.container {
+				width: 500px;
+				max-width: 100%;
+				background: #09192b;
+				border: 2px solid #019cc2;
+				border-radius: 12px;
+				padding: 25px;
+				box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+			}
+			h1{
+				text-align: center;
+				margin-bottom: 20px;
+				color: white;
+				font-weight: bold;
+				text-decoration: italic;
+			}
+			label {
+				display: block;
+				margin-top: 10px;
+			font-weight: bold;
+				color: #ffffff;
+			}
+			input[type="text"],
+			input[type="number"],
+			input[type="date"],
+			select,
+			textarea {
+				width: 100%;
+				padding: 10px;
+				margin-top: 6px;
+				border-radius: 8px;
+				border: 1px solid #cbd5e1;
+				box-sizing: border-box;
+				font-size: 14px;
+				background-color:#09192b;
+				color: #fff;
+			}
+			input:focus,
+			textarea:focus,
+			select:focus {
+				border-color: #00B8E6;
+				outline: none;
+			}
+			textarea {
+				resize: vertical;
+			}
+			button {
+				margin-top: 15px;
+				width: 100%;
+				padding: 12px;
+				background: linear-gradient(135deg, #0c4761, #6d9db5);
+				border: none;
+				border-radius: 8px;
+				color: #fff;
+				font-size: 15px;
+				cursor: pointer;
+				transition: 0.3s;
+			}
+			button:hover {
+				background: linear-gradient(135deg, #2a596b, #024364);
+				transform: scale(1.02);
+			}
+			.yes-no {
+				display: flex;
+				gap: 50px;
+				align-items: center;
+				margin-top: 6px;
+			}
+			.yes-no label {
+				display: flex;
+				align-items: center;
+				gap: 5px;
+				font-weight: normal;
+			}
+			.member{
+				background-color: #09192b;
+			}
+			p{
+				color: #00B8E6;
+				font-weight: bold;
+				padding-top: 30px;
+				margin-top: 0px;
+			}
+
+			hr{
+				border: solid 1px #00B8E6;
+				margin: 30px;
+				margin-bottom: 0px;
+			}
+
+			.error-message {
+				color: #ff4444;
+				font-size: 12px;
+				margin-top: 5px;
+				display: none;
+			}
+			.success-message {
+				color: #4ecb71;
+				font-size: 12px;
+				margin-top: 5px;
+				display: none;
+				text-align: center;
+			}
+
+			.hidden{
+				display:none;
+			}
+
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h1>Nomination Request Form</h1>
+			<form id="nominationForm">
+				<p>Personal Information</p>
+
+				<label>Full Name</label>
+				<input type="text" id="fullname" name="fullname" value="@" required>
+
+				<label>Registration Number</label>
+				<input type="text" id="ID" name="ID" required>
+
+				<hr>
+
+				<p>Position Information</p>
+
+				<label>Position</label>
+				<select name="role" id="role" required>
+					<option value="" disabled selected></option>
+					<option value="President">President</option>
+					<option value="Vice-President">Vice-President</option>
+					<option value="Manager">Manager</option>
+					<option value="Instructor">Instructor</option>
+				</select>
+
+				<div id="departmentContainer" class="hidden">
+					<label>Select department</label>
+					<select name="department" id="department" required>
+						<option value="" disabled selected></option>
+						<option value="Scientific">Scientific department</option>
+						<option value="Events">Events & Communication Department</option>
+						<option value="Administration">Administration & Logistics Department</option>
+					</select>
+				</div>
+
+				<div id="subdepartmentContainer" class="hidden">
+					<label>Select Sub-department</label>
+					<select name="subdepartment" id="subdepartment" required>
+						<option value="" disabled selected></option>
+						<option value="Training">Training and Education</option>
+						<option value="Research">Research</option>
+						<option value="Workshops">Workshops</option>
+						<option value="Event">Event</option>
+						<option value="Media and Communication">Media and Communication</option>
+						<option value="Administration">Administration</option>
+						<option value="Partnership and Sponsorship">Partnership and Sponsorship</option>
+						<option value="Logistics and Equipement">Logistics and Equipement</option>
+					</select>
+				</div>
+
+				<label>Why are you Applying for this position?</label>
+				<textarea rows="3" name="whyApply" id="whyApply" required></textarea>
+				<div class="error-message" id="whyApplyError"></div>
+
+				<label>What skills and qualifications do you have?</label>
+				<textarea rows="3" name="skills" id="skills" required></textarea>
+				<div class="error-message" id="skillsError"></div>
+
+				<label>Membership Date</label>
+				<div class="member">
+					<input type="date" name="membership" id="membership" required>
+				</div>
+				<div class="error-message" id="membershipError"></div>
+
+				<div class="confirmation">
+					<label>
+						<input type="checkbox" name="confirmation" value="confirmation" required>
+						I understand the responsibilities of the role and am committed to serving the club.
+					</label>
+				</div>
+
+				<div class="error-message" id="Error-message"></div>
+				<div id="formMessage" class="success-message"></div> 
+
+				<button type="submit">Submit</button>
+			</form>
+		</div>
+		<script>
+			const roleSelect = document.getElementById('role');
+			const departmentContainer = document.getElementById('departmentContainer');
+			const subdepartmentContainer = document.getElementById('subdepartmentContainer');
+			const departmentSelect = document.getElementById('department');
+			const subdepartmentSelect = document.getElementById('subdepartment');
+
+			function updateDropdowns() {
+				const selectedRole = roleSelect.value;
+
+				departmentContainer.classList.add('hidden');
+				subdepartmentContainer.classList.add('hidden');
+
+				departmentSelect.required = false;
+				subdepartmentSelect.required = false;
+
+				if (selectedRole === 'Manager') {
+					departmentContainer.classList.remove('hidden');
+					departmentSelect.required = true;
+					console.log('Manager - show departments only');
+				}else if (selectedRole === 'Instructor') {
+					departmentContainer.classList.remove('hidden');
+					departmentSelect.required = true;
+				}
+			}
+
+			function updateSubdepartments() {
+				const selectedRole = roleSelect.value;
+				const selectedDepartment = departmentSelect.value;
+				if (selectedRole === 'Instructor' && selectedDepartment) {
+
+					subdepartmentContainer.classList.remove('hidden');
+					subdepartmentSelect.required = true;
+					
+					subdepartmentSelect.innerHTML = '<option value="" disabled selected>Select sub-department</option>';
+
+					let subdepartments = [];
+					
+					if (selectedDepartment === 'Scientific') {
+						subdepartments = [
+							'Training and Education',
+							'Research',
+							'Workshops'
+						];
+					} else if (selectedDepartment === 'Events') {
+						subdepartments = [
+							'Event',
+							'Media and Communication'
+						];
+					} else if (selectedDepartment === 'Administration') {
+						subdepartments = [
+							'Administration',
+							'Partnership and Sponsorship',
+							'Logistics and Equipement'
+						];
+					}
+					subdepartments.forEach(sub => {
+						const option = document.createElement('option');
+						option.value = sub;
+						option.textContent = sub;
+						subdepartmentSelect.appendChild(option);
+					});
+				} else {
+					subdepartmentContainer.classList.add('hidden');
+					subdepartmentSelect.required = false;
+				}
+			}
+
+			roleSelect.addEventListener('change', updateDropdowns);
+			departmentSelect.addEventListener('change', updateSubdepartments);
+			document.getElementById('nominationForm').addEventListener('submit', async (e) => {
+				e.preventDefault();
+				const formData = new FormData(e.target);
+				const fullname = formData.get('fullname');
+				const ID = formData.get('ID');
+				const role = formData.get('role');
+				const whyApply = formData.get('whyApply');
+				const skills = formData.get('skills');
+				const membershipDate = formData.get('membership');
+				const department = formData.get('department');
+				const subdepartment = formData.get('subdepartment');
+
+				document.getElementById('whyApplyError').style.display = 'none';
+				document.getElementById('skillsError').style.display = 'none';
+				document.getElementById('Error-message').style.display = 'none';
+
+				const whyApplyResult = whyApplyValidation(whyApply);
+				if (!whyApplyResult.valid) {
+					document.getElementById('whyApplyError').style.display = 'block';
+					document.getElementById('whyApplyError').innerHTML = '⚠️ ' + whyApplyResult.message;
+					return;
+				}
+				
+				const skillsResult = skillsValidation(skills);
+				if (!skillsResult.valid) {
+					document.getElementById('skillsError').style.display = 'block';
+					document.getElementById('skillsError').innerHTML = '⚠️ ' + skillsResult.message;
+					return;
+				}
+				if (role === 'Manager' && !department) {
+					document.getElementById('Error-message').style.display = 'block';
+					document.getElementById('Error-message').style.color = '#ff4444';
+					document.getElementById('Error-message').innerHTML = '❌ Please select a department';
+					return;
+				}
+
+				if (role === 'Instructor' && (!department || !subdepartment)) {
+					document.getElementById('Error-message').style.display = 'block';
+					document.getElementById('Error-message').style.color = '#ff4444';
+					document.getElementById('Error-message').innerHTML = '❌ Please select both department and sub-department';
+					return;
+				}
+				
+				const response = await fetch('/api/nomination-user', {
+				method: 'POST',
+				headers: {'Content-Type': 'application/json'},
+				body: JSON.stringify({
+					fullname: fullname,
+					ID: Number(ID),
+					role: role,
+					whyApply: whyApply,
+					skills: skills,
+					membership: membershipDate,
+					department: department,
+					subdepartment: subdepartment 
+				})
+			});
+
+			const result = await response.json();
+			
+			const messageDiv = document.getElementById('Error-message');
+			messageDiv.style.display = 'block';
+			
+				if (result.success) {
+					messageDiv.style.color = '#4ecb71';
+					messageDiv.innerHTML = '✅ ' + result.message;
+					setTimeout(() => {
+						if (window.parent && window.parent.closePanel) {
+							window.parent.closePanel();
+						}
+					}, 1000);
+				} else {
+					messageDiv.style.color = '#ff4444';
+					messageDiv.innerHTML = '❌ ' + result.message;
+				}
+			});
+				
+			function countWords(text) {
+				if (!text) return 0;
+				return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+			}
+
+			function countCharacters(text) {
+				if (!text) return 0;
+				return text.trim().length;
+			}
+
+			function whyApplyValidation(text) {
+				const wordCount = countWords(text);
+				if (wordCount < 10) {
+					return { valid: false, message: `The reason must be at least 10 words (currently ${wordCount} words)` };
+				}
+				if (wordCount > 500) {
+					return { valid: false, message: `The reason cannot exceed 500 words (currently ${wordCount} words)` };
+				}
+				return { valid: true, message: '' };
+			}
+
+			function skillsValidation(text) {
+				const charCount = countCharacters(text);
+				if (charCount < 50) {
+					return { valid: false, message: `Skills must be at least 50 characters (currently ${charCount} characters)` };
+				}
+				if (charCount > 1000) {
+					return { valid: false, message: `Skills cannot exceed 1000 characters (currently ${charCount})` };
+				}
+				return { valid: true, message: '' };
+			}
+
+			document.getElementById('whyApply').addEventListener('input', function() {
+				const result = whyApplyValidation(this.value);
+				const errorDiv = document.getElementById('whyApplyError');
+				if (!result.valid) {
+					errorDiv.style.display = 'block';
+					errorDiv.innerHTML = '⚠️ ' + result.message;
+				} else {
+					errorDiv.style.display = 'none';
+				}
+			});
+
+			document.getElementById('skills').addEventListener('input', function() {
+				const result = skillsValidation(this.value);
+				const errorDiv = document.getElementById('skillsError');
+				if (!result.valid) {
+					errorDiv.style.display = 'block';
+					errorDiv.innerHTML = '⚠️ ' + result.message;
+				} else {
+					errorDiv.style.display = 'none';
+				}
+			});
+
+			window.openPanel = function(page) {
+				console.log("openPanel called for:", page);
+				const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+				let url = currentUser ? `${page}?role=${currentUser.role}` : 'login.html';
+				window.open(url, '_blank');
+			};
+		</script>
+	</body>
+</html>

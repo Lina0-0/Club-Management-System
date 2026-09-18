@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Event Approval Request Form</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				background: #18263d;
+				margin: 0;
+				padding: 20px;
+				display: flex;
+				justify-content: center;
+				align-items: flex-start; 
+				min-height: 100vh;
+			}
+			.container {
+				width: 500px;
+				max-width: 100%;
+				background: #09192b;
+				border: 2px solid #019cc2;
+				border-radius: 12px;
+				padding: 25px;
+				box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+			}
+			h1{
+				text-align: center;
+				margin-bottom: 20px;
+				color: white;
+				font-weight: bold;
+				text-decoration: italic;
+			}
+			label {
+				display: block;
+				margin-top: 10px;
+				font-weight: bold;
+				color: #ffffff;
+			}
+			input[type="text"],
+			input[type="date"],
+			input[type="time"],
+			input[type="number"],
+			textarea,
+			select {
+				width: 100%;
+				padding: 10px;
+				margin-top: 6px;
+				border-radius: 8px;
+				border: 1px solid #cbd5e1;
+				box-sizing: border-box;
+				font-size: 14px;
+				background-color:#09192b;
+				color: #fff;
+			}
+			input:focus,
+			textarea:focus,
+			select:focus {
+				border-color: #00B8E6;
+				outline: none;
+			}
+			textarea {
+				resize: none;
+			}
+			button {
+				margin-top: 15px;
+				width: 100%;
+				padding: 12px;
+				background: linear-gradient(135deg, #0c4761, #6d9db5);
+				border: none;
+				border-radius: 8px;
+				color: #fff;
+				font-size: 15px;
+				cursor: pointer;
+			    transition: 0.3s;
+			}
+			button:hover {
+				background: linear-gradient(135deg, #2a596b, #024364);
+				transform: scale(1.02);
+			}
+			option{
+				font-size: 19px;
+			}
+			p{
+				color: #00B8E6;
+				font-weight: bold;
+				padding-top: 30px;
+				margin-top: 0px;
+			}
+
+			hr{
+				border: solid 1px #00B8E6;
+				margin: 30px;
+				margin-bottom: 0px;
+			}
+
+			.error-message {
+				color: #ff4444;
+				font-size: 12px;
+				margin-top: 5px;
+				display: none;
+			}
+			.success-message {
+				color: #4ecb71;
+				font-size: 12px;
+				margin-top: 5px;
+				display: none;
+				text-align: center;
+			}
+
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h1>Event Approval Request Form</h1>
+			<form id="event-form">
+
+				<p>Event Information</p>
+
+				<label>Event Title</label>
+				<input type="text" name="eventTitle" id="eventTitle" required>
+				<div class="error-message" id="eventTitleError"></div>
+
+				<label>Event Description</label>
+				<textarea rows="4" name="eventDescription" id="eventDescription" required></textarea>
+				<div class="error-message" id="eventDescriptionError"></div>
+
+				<label>Which sub-department does this event primarily target?</label>
+				<select name="subdepartment" id="subdepartment" required>
+					<option value="" disabled selected></option>
+					<option value="Training">Training and Education</option>
+					<option value="Research">Research</option>
+					<option value="Workshops">Workshops</option>
+					<option value="Event">Event</option>
+					<option value="Media and Communication">Media and Communication</option>
+					<option value="Administration">Administration</option>
+					<option value="Partnership and Sponsorship">Partnership and Sponsorship</option>
+					<option value="Logistics and Equipement">Logistics and Equipement</option>
+				</select>
+
+				<label>Event Location</label>
+				<input type="text" name="eventLocation" id="eventLocation" required>
+				<div class="error-message" id="eventLocationError"></div>
+
+				<label>Event Date</label>
+				<input type="date" name="eventDate" id="eventDate" required>
+
+				<label>Event Time </label>
+				<input type="time" name="eventTime" id="eventTime" required>
+
+				<label>Event Expected Duration</label>
+				<input type="text" name="eventDuration" id="eventDuration" required>
+				<div class="error-message" id="eventDurationError"></div>
+
+				<label>Expected Number Of Participants</label>
+				<input type="number" name="participants" id="participants" required>
+				<div class="error-message" id="participantsError"></div>
+
+				<label>Required Resources</label>
+				<textarea rows="3" name="resources" id="resources"></textarea>
+
+				<hr>
+
+				<p>Organizer Information</p>
+
+				<label>Event Organizer Name</label>
+				<input type="text" id="fullname" name="fullname" value="@" required>
+
+
+				<label>Registration Number</label>
+				<input type="text" id="ID" name="ID" required>
+
+
+				<label>Position</label>
+				<select name="position" id="position" required>
+					<option value="" disabled selected></option>
+					<option value="student">Student</option>
+					<option value="member">Member</option>
+					<option value="instructor">Instructor</option>
+					<option value="manager">Manager</option>
+				</select>
+
+				<div class="confirmation">
+					<label><input type="checkbox" name="confirmation" value="confirmation" required>I confirm that the informations provided is accurate and that the club will comply with all university\club rules and safety guidelines.</label>
+				</div>
+
+				<div class="error-message" id="Error-message"></div>
+				<div id="formMessage" class="success-message"></div>
+
+				<button type="submit">Submit</button>
+			</form>
+		</div>
+
+		<script>
+
+			document.getElementById('event-form').addEventListener('submit', async (e) => {
+				e.preventDefault();
+				const formData = new FormData(e.target);
+				const fullname = formData.get('fullname');
+				const ID = formData.get('ID');
+				const eventTitle = formData.get('eventTitle');
+				const eventDescription = formData.get('eventDescription');
+				const subdepartment = formData.get('subdepartment')
+				const eventLocation = formData.get('eventLocation');
+				const eventDate = formData.get('eventDate');
+				const eventTime = formData.get('eventTime')
+				const eventDuration = formData.get('eventDuration');
+				const participants = formData.get('participants');
+				const resources = formData.get('resources');
+				const position = formData.get('position');
+
+				document.getElementById('eventTitleError').style.display = 'none';
+				document.getElementById('eventDescriptionError').style.display = 'none';
+				document.getElementById('eventLocationError').style.display = 'none';
+				document.getElementById('eventDurationError').style.display = 'none';
+				document.getElementById('participantsError').style.display = 'none';
+				document.getElementById('Error-message').style.display = 'none';
+				
+				const eventDescriptionValidation = validateEventDescription(eventDescription);
+				if (!eventDescriptionValidation.valid) {
+					document.getElementById('eventDescriptionError').style.display = 'block';
+					document.getElementById('eventDescriptionError').innerHTML = '⚠️ ' + eventDescriptionValidation.message;
+					return;
+				}
+
+				const eventTitleValidation = validateEventTitle(eventTitle);
+				if (!eventTitleValidation.valid) {
+					document.getElementById('eventTitleError').style.display = 'block';
+					document.getElementById('eventTitleError').innerHTML = '⚠️ ' + eventTitleValidation.message;
+					return;
+				}
+
+				const eventLocationValidation = validateEventLocation(eventLocation);
+				if (!eventLocationValidation.valid) {
+					document.getElementById('eventLocationError').style.display = 'block';
+					document.getElementById('eventLocationError').innerHTML = '⚠️ ' + eventLocationValidation.message;
+					return;
+				}
+
+				if (!eventDuration) {
+					document.getElementById('eventDurationError').style.display = 'block';
+					document.getElementById('eventDurationError').innerHTML = '⚠️ Event duration is required';
+					return;
+				}
+				
+				if (!participants || participants < 1) {
+					document.getElementById('participantsError').style.display = 'block';
+					document.getElementById('participantsError').innerHTML = '⚠️ Please enter a valid number of participants (at least 1)';
+					return;
+				}
+				if (participants > 1000) {
+					document.getElementById('participantsError').style.display = 'block';
+					document.getElementById('participantsError').innerHTML = '⚠️ Number of participants cannot exceed 1000';
+					return;
+				}
+
+				const today = new Date().toISOString().split('T')[0];
+				if (eventDate < today) {
+					document.getElementById('Error-message').style.display = 'block';
+					document.getElementById('Error-message').style.color = '#ff4444';
+					document.getElementById('Error-message').innerHTML = '❌ Event date must be in the future';
+					return;
+				}
+			
+				const response = await fetch('/api/submit-event-request', {
+					method: 'POST',
+					headers: {'Content-Type': 'application/json'},
+					body: JSON.stringify({
+						fullname: fullname,
+						ID: ID,
+						eventTitle: eventTitle,
+						eventDescription: eventDescription,
+						subdepartment: subdepartment,
+						eventLocation: eventLocation,
+						eventDate: eventDate,
+						eventTime: eventTime,
+						eventDuration: eventDuration,
+						participants: participants,
+						resources: resources,
+						position: position
+					})
+				});
+			
+				const result = await response.json();
+				
+				const messageDiv = document.getElementById('Error-message');
+				messageDiv.style.display = 'block';
+			
+				if (result.success) {
+					messageDiv.style.color = '#4ecb71';
+					messageDiv.innerHTML = '✅ ' + result.message;
+					setTimeout(() => {
+						if (window.parent && window.parent.closePanel) {
+							window.parent.closePanel();
+						}
+					}, 1000);
+				} else {
+					messageDiv.style.color = '#ff4444';
+					messageDiv.innerHTML = '❌ ' + result.message;
+				}
+			});
+
+			function countWords(text) {
+				if (!text) return 0;
+				return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+			}
+
+			function countCharacters(text) {
+				if (!text) return 0;
+				return text.trim().length;
+			}
+
+			function validateEventTitle(text) {
+				const charCount = countCharacters(text);
+				if (charCount < 5) {
+					return { valid: false, message: `Event title must be at least 5 characters (currently ${charCount} characters)` };
+				}
+				if (charCount > 100) {
+					return { valid: false, message: `Event title cannot exceed 100 characters (currently ${charCount} characters)` };
+				}
+				return { valid: true, message: '' };
+			}
+
+			function validateEventDescription(text) {
+				const wordCount = countWords(text);
+				if (wordCount < 10) {
+					return { valid: false, message: `Description must be at least 10 words (currently ${wordCount} words)` };
+				}
+				if (wordCount > 500) {
+					return { valid: false, message: `Description cannot exceed 500 words (currently ${wordCount} words)` };
+				}
+				return { valid: true, message: '' };
+			}
+
+			function validateEventLocation(text) {
+				const charCount = countCharacters(text);
+				if (charCount < 5) {
+					return { valid: false, message: `Event location must be at least 5 characters (currently ${charCount} characters)` };
+				}
+				if (charCount > 100) {
+					return { valid: false, message: `Event location cannot exceed 100 characters (currently ${charCount} characters)` };
+				}
+				return { valid: true, message: '' };
+			}
+
+			document.getElementById('eventTitle').addEventListener('input', function() {
+				const result = validateEventTitle(this.value);
+				const errorDiv = document.getElementById('eventTitleError');
+				if (!result.valid) {
+					errorDiv.style.display = 'block';
+					errorDiv.innerHTML = '⚠️ ' + result.message;
+				} else {
+					errorDiv.style.display = 'none';
+				}
+			});
+
+			document.getElementById('eventDescription').addEventListener('input', function() {
+				const result = validateEventDescription(this.value);
+				const errorDiv = document.getElementById('eventDescriptionError');
+				if (!result.valid) {
+					errorDiv.style.display = 'block';
+					errorDiv.innerHTML = '⚠️ ' + result.message;
+				} else {
+					errorDiv.style.display = 'none';
+				}
+			});
+
+			document.getElementById('eventLocation').addEventListener('input', function() {
+				const result = validateEventLocation(this.value);
+				const errorDiv = document.getElementById('eventLocationError');
+				if (!result.valid) {
+					errorDiv.style.display = 'block';
+					errorDiv.innerHTML = '⚠️ ' + result.message;
+				} else {
+					errorDiv.style.display = 'none';
+				}
+			});
+
+			document.getElementById('participants').addEventListener('input', function() {
+				const value = parseInt(this.value);
+				const errorDiv = document.getElementById('participantsError');
+				if (value < 1) {
+					errorDiv.style.display = 'block';
+					errorDiv.innerHTML = '⚠️ Number of participants must be at least 1';
+				} else if (value > 1000) {
+					errorDiv.style.display = 'block';
+					errorDiv.innerHTML = '⚠️ Number of participants cannot exceed 1000';
+				} else {
+					errorDiv.style.display = 'none';
+				}
+			});
+
+			window.openPanel = function(page) {
+				console.log("openPanel called for:", page);
+				const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+				let url = currentUser ? `${page}?role=${currentUser.role}` : 'login.html';
+				window.open(url, '_blank');
+			};
+
+		</script>
+	</body>
+</html>

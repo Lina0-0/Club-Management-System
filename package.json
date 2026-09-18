@@ -1,0 +1,22 @@
+{
+  "name": "website",
+  "version": "1.0.0",
+  "description": "Catalyst Chemistry Club Management System",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.1",
+    "multer": "^2.1.1",
+    "nodemailer": "^8.0.8",
+    "pg": "^8.20.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

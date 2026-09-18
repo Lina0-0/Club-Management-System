@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Join Event Form</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				background: #18263d;
+				margin: 0;
+				padding: 20px;
+				display: flex;
+				justify-content: center;
+				align-items: flex-start; 
+				min-height: 100vh;
+			}
+			.container {
+				width: 500px;
+				max-width: 100%;
+				background: #09192b;
+				border: 2px solid #019cc2;
+				border-radius: 12px;
+				padding: 25px;
+				box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+			}
+			h1{
+				text-align: center;
+				margin-bottom: 20px;
+				color: white;
+				font-weight: bold;
+				text-decoration: italic;
+			}
+			label {
+				display: block;
+				margin-top: 10px;
+				font-weight: bold;
+				color: #ffffff;
+			}
+			input[type="text"],
+			textarea,
+			select {
+				width: 100%;
+				padding: 10px;
+				margin-top: 6px;
+				border-radius: 8px;
+				border: 1px solid #cbd5e1;
+				box-sizing: border-box;
+				font-size: 14px;
+				background-color:#09192b;
+				color: #fff;
+			}
+			input:focus,
+			textarea:focus,
+			select:focus {
+				border-color: #00B8E6;
+				outline: none;
+			}
+			textarea {
+				resize: none;
+			}
+			button {
+				margin-top: 15px;
+				width: 100%;
+				padding: 12px;
+				background: linear-gradient(135deg, #0c4761, #6d9db5);
+				border: none;
+				border-radius: 8px;
+				color: #fff;
+				font-size: 15px;
+				cursor: pointer;
+				transition: 0.3s;
+			}
+			button:hover {
+				background: linear-gradient(135deg, #2a596b, #024364);
+				transform: scale(1.02);
+			}
+			p{
+				color: #00B8E6;
+				font-weight: bold;
+				padding-top: 30px;
+				margin-top: 0px;
+			}
+
+			hr{
+				border: solid 1px #00B8E6;
+				margin: 30px;
+				margin-bottom: 0px;
+			}
+
+			.error-message {
+				color: #ff4444;
+				font-size: 12px;
+				margin-top: 5px;
+				display: none;
+			}
+			.success-message {
+				color: #4ecb71;
+				font-size: 12px;
+				margin-top: 5px;
+				display: none;
+				text-align: center;
+			}
+
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h1>Join Event Form</h1>
+			<form id="joinForm">
+				<p>Personal Information</p>
+				<label>Full Name</label>
+				<input type="text" id="fullname" name="fullname" value="@" required>
+
+				<label>Registration Number</label>
+				<input type="text" id="ID" name="ID" required>
+
+				<hr>
+
+				<p>General Information</p>
+				<label>Event name:</label>
+				<input type="text" id="eventName" name="eventName" required>
+
+				<label>Your current role in the club</label>
+
+				<select name="role" id="role" required>
+					<option value=""></option>
+					<option value="member">member</option>
+					<option value="manager">Manager</option>
+					<option value="instructor">Instructor</option>
+				</select>
+
+				<label>How did you hear about this event?</label>
+				<select name="motivation" id="motivation" name="motivation">
+					<option value="" disabled selected></option>
+					<option value="Friend">Friend</option>
+					<option value="Social Media">Social Media</option>
+					<option value="University Event">University Event</option>
+					<option value="Other">Other</option>
+				</select>
+
+				<label>Reason for Participation</label>
+				<textarea rows="3" name="participationReason" id="participationReason" required></textarea>
+				<div class="error-message" id="participationReasonError"></div>
+
+				<div class="error-message" id="Error-message"></div>
+				<div id="formMessage" class="success-message"></div>
+
+				<button type="submit">Submit</button>
+			</form>
+		</div>
+			
+		<script>
+			document.getElementById('joinForm').addEventListener('submit', async (e) => {
+				e.preventDefault();
+				const formData = new FormData(e.target);
+				const fullname = formData.get('fullname');
+				const ID = formData.get('ID');
+				const role = formData.get('role');
+				const motivation = formData.get('motivation');
+				const eventName = formData.get('eventName');
+				const participationReason = formData.get('participationReason');
+			
+				document.getElementById('participationReasonError').style.display = 'none';
+				document.getElementById('Error-message').style.display = 'none';
+				
+				const participationValidation = validateParticipationReason(participationReason);
+				if (!participationValidation.valid) {
+					document.getElementById('participationReasonError').style.display = 'block';
+					document.getElementById('participationReasonError').innerHTML = '⚠️ ' + participationValidation.message;
+					return;
+				}
+				
+				const response = await fetch('/api/event-join-request', {
+					method: 'POST',
+					headers: {'Content-Type': 'application/json'},
+					body: JSON.stringify({
+						fullname: fullname,
+						ID: ID,
+						eventName: eventName,
+						role: role,
+						motivation: motivation,
+						participationReason: participationReason
+					})
+				});
+				
+				const result = await response.json();
+				
+				const messageDiv = document.getElementById('Error-message');
+				messageDiv.style.display = 'block';
+				
+				if (result.success) {
+					messageDiv.style.color = '#4ecb71';
+					messageDiv.innerHTML = '✅ ' + result.message;
+					setTimeout(() => {
+						if (window.parent && window.parent.closePanel) {
+							window.parent.closePanel();
+						}
+					}, 1000);
+				} else {
+					messageDiv.style.color = '#ff4444';
+					messageDiv.innerHTML = '❌ ' + result.message;
+				}
+			});
+
+			function countWords(text) {
+				if (!text) return 0;
+				return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+			}
+
+			function validateParticipationReason(text) {
+				const wordCount = countWords(text);
+				if (wordCount < 10) {
+					return { valid: false, message: `Participation reason must be at least 10 words (currently ${wordCount} words)` };
+				}
+				if (wordCount > 500) {
+					return { valid: false, message: `Participation reason cannot exceed 500 words (currently ${wordCount} words)` };
+				}
+				return { valid: true, message: '' };
+			}
+
+			document.getElementById('participationReason').addEventListener('input', function() {
+				const result = validateParticipationReason(this.value);
+				const errorDiv = document.getElementById('participationReasonError');
+				if (!result.valid) {
+					errorDiv.style.display = 'block';
+					errorDiv.innerHTML = '⚠️ ' + result.message;
+				} else {
+					errorDiv.style.display = 'none';
+				}
+			});
+
+			window.openPanel = function(page) {
+				console.log("openPanel called for:", page);
+				const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+				let url = currentUser ? `${page}?role=${currentUser.role}` : 'login.html';
+				window.open(url, '_blank');
+			};
+
+		</script>
+	</body>
+</html>

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Join Request Form</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background: #18263d;
+                margin: 0;
+                padding: 20px;
+                display: flex;
+                justify-content: center;
+                align-items: flex-start; 
+                min-height: 100vh;
+            }
+            h1{
+                text-align: center;
+                margin-bottom: 20px;
+                color: white;
+                font-weight: bold;
+            }
+            .container {
+                width: 500px;
+                max-width: 100%;
+                background: #09192b;
+                border: 2px solid #019cc2;
+                border-radius: 12px;
+                padding: 25px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            }
+            label {
+                display: block;
+                margin-top: 10px;
+                font-weight: bold;
+                color: #ffffff;
+            }
+            input[type="text"],
+            select,
+            textarea,
+            input[type="email"] {
+                width: 100%;
+                padding: 10px;
+                margin-top: 6px;
+                border-radius: 8px;
+                border: 1px solid #cbd5e1;
+                box-sizing: border-box;
+                font-size: 14px;
+                background-color:#09192b;
+                color: #fff;
+            }
+            input:focus,
+            textarea:focus,
+            select:focus {
+                border-color: #00B8E6;
+                outline: none;
+            }
+            textarea {
+                resize: none;
+            }
+            input[type="radio"] {
+                margin-right: 6px;
+            }
+            button {
+                margin-top: 15px;
+                width: 100%;
+                padding: 12px;
+                background: linear-gradient(135deg, #0c4761, #6d9db5);
+                border: none;
+                border-radius: 8px;
+                color: #fff;
+                font-size: 15px;
+                cursor: pointer;
+                transition: 0.3s;
+            }
+            button:hover {
+                background: linear-gradient(135deg, #2a596b, #024364);
+                transform: scale(1.02);
+            }
+            .yes-no {
+                display: flex;
+                gap: 50px;
+                align-items: center;
+                margin-top: 6px;
+            }
+            .yes-no label {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                font-weight: normal;
+            }
+            p{
+                color: #00B8E6;
+                font-weight: bold;
+                padding-top: 30px;
+                margin-top: 0px;
+            }
+            hr{
+                border: solid 1px #00B8E6;
+                margin: 30px;
+                margin-bottom: 0px;
+            }
+            .error-message {
+                color: #ff4444;
+                font-size: 12px;
+                margin-top: 5px;
+                display: none;
+            }
+            .success-message {
+                color: #4ecb71;
+                font-size: 12px;
+                margin-top: 5px;
+                display: none;
+                text-align: center;
+            }
+            .input-error{
+                color: red; 
+                font-size: 10px;
+                display: block;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Join Request Form</h1>
+            <form id="joinForm">
+                <p>Personal Information</p>
+                <label>Username</label>
+                <input type="text" id="username" name="username" required>
+                <small class="input-error" id="regUsernameError"></small>
+
+                <label>Registration Number</label>
+                <input type="text" id="ID" name="ID" required>
+                <small class="input-error" id="regIdError"></small>
+                
+                <label>Email Address</label>
+                <input type="email" id="email" name="email" required>
+                <small class="input-error" id="regEmailError"></small>
+                
+                <label>Faculty Name</label>
+                <input type="text" id="facultyName" name="facultyName" required>
+                <small class="input-error" id="regFacultyError"></small>
+                
+                <label>Level (year of study)</label>
+                <input type="text" id="level" name="level" required>
+                <small class="input-error" id="regLevelError"></small>
+
+                <hr>
+
+                <p>General Information & Motivations</p>
+                <label>Why do you want to join this department?</label>
+                <textarea rows="2" id="motivationReason" name="motivationReason" required></textarea>
+                <div class="error-message" id="motivationReasonError"></div>
+
+                <label>Select Sub-department</label>
+                <select name="subdepartment" id="subdepartment" required>
+                    <option value="" disabled selected></option>
+                    <option value="Training and Education Sub-department">Training and Education Sub-department</option>
+                    <option value="Research Sub-department">Research Sub-department</option>
+                    <option value="Workshops Sub-department">Workshops Sub-department</option>
+                    <option value="Events Sub-department">Event Sub-department</option>
+                    <option value="Media and Communication Sub-department">Media and Communication Sub-department</option>
+                    <option value="Administration Sub-department">Administration Sub-department</option>
+                    <option value="Partnership and Sponsorship Sub-department">Partnership and Sponsorship Sub-department</option>
+                    <option value="Logistics and Equipment Sub-department">Logistics and Equipement Sub-department</option>
+                </select>
+
+                <label>What relevant skills do you have?</label>
+                <textarea rows="3" id="skills" name="skills" required></textarea>
+                <div class="error-message" id="skillsError"></div>
+
+                <label>How did you hear about our club?</label>
+                <select name="motivation" id="motivation" required>
+                    <option value="" disabled selected></option>
+                    <option value="Friend">Friend</option>
+                    <option value="Social Media">Social Media</option>
+                    <option value="University Event">University Event</option>
+                    <option value="Other">Other</option>
+                </select>
+                    
+                <label>Do you have any previous experience in chemistry club?</label>
+                <div class="yes-no" required>
+                    <label><input type="radio" name="Experience" value="Yes" required>Yes</label>
+                    <label><input type="radio" name="Experience" value="No" required>No</label>
+                </div>
+
+                <div class="error-message" id="Error-message"></div>
+                <div id="formMessage" class="success-message"></div>
+                
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+        
+        <script>
+            document.getElementById('joinForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                let hasError = false;
+                
+                const username = document.getElementById('username').value.trim();
+                const ID = document.getElementById('ID').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const motivationReason = document.getElementById('motivationReason').value;
+                const subdepartment = document.getElementById('subdepartment').value;
+                const skills = document.getElementById('skills').value;
+                const motivation = document.getElementById('motivation').value;
+                const Experience = document.querySelector('input[name="Experience"]:checked');
+                const facultyName = document.getElementById('facultyName').value.trim();
+                const Level = document.getElementById('level').value.trim();		
+                const formattedUsername = username.startsWith('@') ? username : `@${username}`;
+                
+                document.getElementById('motivationReasonError').style.display = 'none';
+                document.getElementById('skillsError').style.display = 'none';
+                document.getElementById('regUsernameError').innerHTML = '';
+                document.getElementById('regIdError').innerHTML = '';
+                document.getElementById('regEmailError').innerHTML = '';
+                document.getElementById('regFacultyError').innerHTML = '';
+                document.getElementById('regLevelError').innerHTML = '';
+                document.getElementById('Error-message').style.display = 'none';
+                
+                const usernameRegex = /^[A-Za-z]{8,}$/;
+                if (!username || !usernameRegex.test(username)) {
+                    document.getElementById('regUsernameError').innerHTML = '❌ Username must be at least 8 letters (no numbers)';
+                    hasError = true;
+                }
+                
+                const idNumberRegex = /^(202[0-5])\d{8}$/;
+                if (!ID || !idNumberRegex.test(ID)) {
+                    document.getElementById('regIdError').innerHTML = '❌ Invalid ID number (format: 202xxxxxx)';
+                    hasError = true;
+                }
+                
+                if (!email || !email.includes('@')) {
+                    document.getElementById('regEmailError').innerHTML = '❌ Invalid email address';
+                    hasError = true;
+                }
+                
+                if (!facultyName || facultyName.trim().length < 3) {
+                    document.getElementById('regFacultyError').innerHTML = '❌ Invalid faculty name';
+                    hasError = true;
+                }
+                
+                if (!Level || Level.trim().length < 2) {
+                    document.getElementById('regLevelError').innerHTML = '❌ Level is required (e.g., L1, L2, M1, L3, etc.)';
+                    hasError = true;
+                }
+                
+                const motivationValidation = validateMotivationReason(motivationReason);
+                if (!motivationValidation.valid) {
+                    document.getElementById('motivationReasonError').style.display = 'block';
+                    document.getElementById('motivationReasonError').innerHTML = '⚠️ ' + motivationValidation.message;
+                    hasError = true;
+                }
+                
+                const skillsValidation = validateSkills(skills);
+                if (!skillsValidation.valid) {
+                    document.getElementById('skillsError').style.display = 'block';
+                    document.getElementById('skillsError').innerHTML = '⚠️ ' + skillsValidation.message;
+                    hasError = true;
+                }
+                
+                if (!Experience) {
+                    document.getElementById('Error-message').style.display = 'block';
+                    document.getElementById('Error-message').innerHTML = '⚠️ Please select Yes or No for previous experience';
+                    document.getElementById('Error-message').style.color = '#ff4444';
+                    hasError = true;
+                }
+                
+                if (hasError) {
+                    return;
+                }
+                
+                try {
+                    const response = await fetch('/api/submit-join-request', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            username: formattedUsername,
+                            ID: ID,
+                            email: email,
+                            motivationReason: motivationReason,
+                            subdepartment: subdepartment,
+                            skills: skills,
+                            motivation: motivation,
+                            Experience: Experience.value,
+                            facultyName: facultyName,
+                            Level: Level
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    const messageDiv = document.getElementById('Error-message');
+                    messageDiv.style.display = 'block';
+                    
+                    if (result.success) {
+                        messageDiv.style.color = '#4ecb71';
+                        messageDiv.innerHTML = '✅ ' + result.message;
+                        document.getElementById('joinForm').reset();
+                    } else {
+                        messageDiv.style.color = '#ff4444';
+                        messageDiv.innerHTML = '❌ ' + result.message;
+                    }
+                } catch (error) {
+                    const messageDiv = document.getElementById('Error-message');
+                    messageDiv.style.display = 'block';
+                    messageDiv.style.color = '#ff4444';
+                    messageDiv.innerHTML = '❌ Connection error. Please try again.';
+                    console.error('Submit error:', error);
+                }
+            });
+
+            function countWords(text) {
+                if (!text) return 0;
+                return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+            }
+
+            function countCharacters(text) {
+                if (!text) return 0;
+                return text.trim().length;
+            }
+
+            function validateMotivationReason(text) {
+                const wordCount = countWords(text);
+                if (wordCount < 10) {
+                    return { valid: false, message: `Description must be at least 10 words (currently ${wordCount} words)` };
+                }
+                return { valid: true, message: '' };
+            }
+
+            function validateSkills(text) {
+                const charCount = countCharacters(text);
+                if (charCount < 50) {
+                    return { valid: false, message: `Skills must be at least 50 characters (currently ${charCount} characters)` };
+                }
+                if (charCount > 1000) {
+                    return { valid: false, message: `Skills cannot exceed 1000 characters (currently ${charCount})` };
+                }
+                return { valid: true, message: '' };
+            }
+
+            document.getElementById('motivationReason').addEventListener('input', function() {
+                const result = validateMotivationReason(this.value);
+                const errorDiv = document.getElementById('motivationReasonError');
+                if (!result.valid) {
+                    errorDiv.style.display = 'block';
+                    errorDiv.innerHTML = '⚠️ ' + result.message;
+                } else {
+                    errorDiv.style.display = 'none';
+                }
+            });
+
+            document.getElementById('skills').addEventListener('input', function() {
+                const result = validateSkills(this.value);
+                const errorDiv = document.getElementById('skillsError');
+                if (!result.valid) {
+                    errorDiv.style.display = 'block';
+                    errorDiv.innerHTML = '⚠️ ' + result.message;
+                } else {
+                    errorDiv.style.display = 'none';
+                }
+            });
+        </script>
+    </body>
+</html>

@@ -1,0 +1,4001 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Catalyst — Chemistry Club Dashboard</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+      <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
+
+        :root {
+          --bg: #0b1421;
+          --surface: #111d2b;
+          --accent: #00d4ff;
+          --accent-glow: rgba(0, 212, 255, 0.3);
+          --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body { 
+          background-color: var(--bg); 
+          color: white; 
+          font-family: 'Plus Jakarta Sans', sans-serif; 
+          overflow: hidden; 
+          height: 100vh; 
+          display: flex; 
+          flex-direction: column; 
+          animation: bgChange 10s infinite alternate;
+        }
+
+        @keyframes bgChange {
+          0% { background-color: #0F172A; }
+          50% { background-color: #1E293B; }
+          100% { background-color: #020617; }
+        }
+
+        .glass-card {
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 20px;
+          background: rgba(255, 255, 255, 0.02);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .btn-sidebar {
+          background-color: #1a222f;
+          border: 1px solid #374151;
+          transition: all 0.2s;
+          width: 100%;
+          text-align: left;
+          padding: 12px 18px;
+          border-radius: 10px;
+          font-size: 13px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          cursor: pointer;
+          color: #94a3b8;
+        }
+
+        .btn-sidebar:hover, .btn-sidebar.active {
+          background-color: #2d3748;
+          border-color: var(--accent);
+          color: var(--accent);
+        }
+
+        .accent-cyan { 
+          color: var(--accent); 
+        }
+
+        .glow-cyan { 
+          filter: drop-shadow(0 0 10px var(--accent-glow)); 
+        }
+
+        .hidden { 
+          display: none; 
+        }
+
+        .content-area {
+          width: 100%;
+          display: block;
+          overflow: visible;
+        }
+
+        .notif-list { 
+          display: flex; 
+          flex-direction: column; 
+          gap: 12px; 
+        }
+
+        .notif-item {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 14px;
+          padding: 16px;
+          display: grid;
+          grid-template-columns: 48px 1fr auto;
+          align-items: center;
+          gap: 15px;
+          transition: all 0.3s ease;
+          position: relative;
+        }
+
+        .notif-item.unread::after {
+          content: ''; position: absolute; left: -1px; top: 25%; height: 50%; width: 3px;
+          background: var(--accent); border-radius: 0 4px 4px 0; box-shadow: 0 0 10px var(--accent);
+        }
+
+        .w-logo { 
+          width: 45px; 
+          height: 45px; 
+          border-radius: 50%; 
+          overflow: hidden; 
+          border: 2px solid var(--accent); 
+        }
+
+        .w-logo img { 
+          width: 100%; 
+          height: 100%; 
+          object-fit: cover; 
+        }
+
+        .notif-item.read { 
+          opacity: 0.5; 
+          background: transparent; 
+          border-style: dashed; 
+        }
+
+        .btn-check {
+          background: rgba(255, 255, 255, 0.03); 
+          border: 1px solid var(--border);
+          width: 32px; 
+          height: 32px; 
+          border-radius: 50%; 
+          display: flex;
+          align-items: center; 
+          justify-content: center; 
+          cursor: pointer; 
+          transition: 0.3s;
+        }
+
+        .icon-box { 
+          width: 40px; 
+          height: 40px; 
+          background: rgba(255, 255, 255, 0.03); 
+          border: 1px solid var(--border); 
+          border-radius: 10px; 
+          display: flex; 
+          align-items: center; 
+          justify-content: center; 
+          font-size: 18px; 
+        }
+
+        .unread .icon-box { 
+          border-color: var(--accent); 
+          color: var(--accent); 
+          background: rgba(0, 212, 255, 0.1); 
+        }
+
+        .new-indicator { 
+          background: var(--accent); 
+          color: var(--bg); 
+          padding: 1px 6px; 
+          border-radius: 4px; 
+          font-size: 9px; 
+          font-weight: 800; 
+          margin-left: 6px; 
+        }
+
+        .request-type { 
+          display: flex; 
+          flex-wrap: wrap; 
+          gap: 14px; 
+          padding: 10px 0; 
+        }
+
+        .req-type-card {
+          display: flex; 
+          justify-content: center; 
+          align-items: center; 
+          text-align: center;
+          background: rgba(30, 41, 59, 0.4); 
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.1); 
+          border-radius: 16px;
+          height: 70px; 
+          width: 190px; 
+          transition: 0.3s; 
+          cursor: pointer;
+          color: white; 
+          text-decoration: none; 
+          font-size: 13px; 
+          font-weight: 600; 
+          padding: 0 12px;
+        }
+
+        .req-type-card:hover { 
+          border-color: var(--accent); 
+          transform: scale(1.05); 
+          color: var(--accent); 
+        }
+
+        .section-divider { 
+          border-bottom: 1px solid rgba(255,255,255,0.1); 
+          padding-bottom: 20px; 
+          margin-bottom: 20px; 
+        }
+
+        .sp-fieldset {
+          background: rgba(30, 41, 59, 0.4); 
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.1); 
+          border-radius: 16px;
+          padding: 20px; 
+          margin-bottom: 16px;
+        }
+
+        .sp-legend { 
+          font-size: 13px; 
+          font-weight: 700; 
+          color: var(--accent); 
+          padding: 0 8px; 
+        }
+
+        .sp-input {
+          color: white; background-color: rgba(0, 245, 255, 0.05);
+          border: 2px solid #00f5ff; 
+          border-radius: 10px; 
+          padding: 8px 12px;
+          width: 100%; 
+          font-size: 13px; 
+          transition: all 0.3s;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .sp-input:focus { 
+          border-color: var(--accent); 
+          outline: none; 
+          box-shadow: 0 0 10px var(--accent-glow); 
+          background: #0F172A; 
+        }
+
+        .sp-textarea { 
+          resize: none; 
+          height: 140px; 
+        }
+
+        .sp-radio { 
+          accent-color: var(--accent); 
+          margin-right: 6px; 
+        }
+
+        .sp-label { 
+          font-size: 13px; 
+          color: #cbd5e1; 
+        }
+
+        .sp-btn {
+          font-weight: 700; 
+          padding: 10px 24px; 
+          border: 2px solid var(--accent);
+          border-radius: 40px; 
+          transition: 0.3s; 
+          cursor: pointer; 
+          font-size: 13px;
+        }
+
+        .sp-publish { 
+          background: white; 
+          color: black; 
+        }
+
+        .sp-publish:hover { 
+          color: var(--accent); 
+          transform: scale(1.05); 
+        }
+
+        .sp-cancel { 
+          background: transparent; 
+          color: white; 
+        }
+
+        .sp-cancel:hover { 
+          color: var(--accent); 
+          transform: scale(1.05); 
+        }
+
+        .info-stat-card {
+          display: flex; 
+          align-items: center; 
+          gap: 16px; 
+          padding: 18px 20px;
+          background: rgba(30, 41, 59, 0.4); 
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.1); 
+          border-radius: 18px;
+        }
+
+        .info-stat-icon { 
+          font-size: 36px; 
+          color: var(--accent); 
+        }
+
+        .info-stat-num { 
+          font-size: 22px; 
+          font-weight: 800; 
+          margin: 0; 
+        }
+
+        .info-stat-label { 
+          font-size: 12px; 
+          color: #94a3b8; 
+          margin: 0; 
+        }
+
+        .info-input {
+          color: white; 
+          height: 10px; 
+          padding: 10px; 
+          border: 2px solid #00f5ff;
+          border-radius: 10px; 
+          background-color: rgba(0, 245, 255, 0.05);
+          transition: all 0.3s; 
+          font-family: 'Plus Jakarta Sans', sans-serif; 
+          font-size: 12px;
+        }
+
+        .info-input:focus { 
+          border-color: var(--accent); 
+          outline: none; 
+          box-shadow: 0 0 10px var(--accent-glow); 
+          background: #0F172A; 
+        }
+
+        .info-btn {
+          background-color: rgba(0, 245, 255, 0.05); 
+          color: white; 
+          font-weight: bold;
+          border: 2px solid #00f5ff; 
+          height: 34px; 
+          border-radius: 10px;
+          margin-left: 8px; 
+          transition: 0.3s; 
+          cursor: pointer; 
+          padding: 0 12px; 
+          font-size: 12px;
+        }
+
+        .info-btn:hover { 
+          transform: scale(1.05); 
+          background: #0F172A; 
+          border-color: var(--accent); 
+          box-shadow: 0 0 10px var(--accent-glow); 
+        }
+
+        .info-table { 
+          width: 100%; 
+          border-collapse: collapse; 
+          background: rgba(30, 41, 59, 0.4); 
+          backdrop-filter: blur(10px); 
+          border-radius: 14px; 
+          overflow: hidden; 
+        }
+
+        .info-table th, .info-table td { 
+          padding: 11px; 
+          text-align: center; 
+          border-bottom: 1px solid rgba(0, 184, 230, 0.15); 
+          font-size: 13px; 
+        }
+
+        .info-table th:not(:last-child), 
+        .info-table td:not(:last-child) { 
+          border-right: 1px solid rgba(0, 184, 230, 0.1); 
+        }
+
+        tr{
+          transition:0.2s;
+        }
+
+        .info-table tbody tr:hover { 
+          background: rgba(0, 184, 230, 0.1); 
+          cursor: pointer;
+        }
+
+        .info-table thead th {
+          background: rgba(0, 212, 255, 0.07); 
+          color: var(--accent); 
+          font-weight: 700; 
+        }
+
+        .change-info-card {
+          display: flex; align-items:center; 
+          gap: 16px; 
+          padding: 18px 20px;
+          background: rgba(30, 41, 59, 0.4); 
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.1); 
+          border-radius: 18px;
+          transition: 0.3s; 
+          cursor: pointer;
+        }
+
+        .change-info-card:hover { 
+          transform: translateY(-4px); 
+          border-color: var(--accent); 
+        }
+
+        .no-posts,
+        .no-requests {
+          animation: float 3s ease-in-out infinite;
+          filter: drop-shadow(0 10px 20px rgba(0, 245, 255, 0.15));
+        }
+
+        .no-posts, .no-requests {
+          width: 140px; 
+          margin-top: 20px;
+        }
+
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) rotate(-2deg); }
+          50% { transform: translateY(-15px) rotate(2deg); }
+        }
+        .noPos, .noReq {
+          font-weight: bold;
+          color:#00d4ff;
+          font-style: italic;
+          font-size: 18px;
+        }
+        .flexes {
+          display: flex;
+          gap: 2rem;
+          flex-direction: column;
+        }
+
+        .left, .right {
+          
+          background: rgba(17, 29, 43, 0.5);
+          border-radius: 24px;
+          padding: 20px;
+          border: 1px solid var(--border);
+          
+        }
+        
+        label{
+          font-size: 15px;
+          line-height: 1.5;
+        }
+
+        .fieldset{
+          background: rgba(30, 41, 59, 0.4);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 20px;
+          padding: 20px;
+          width: 100%;
+        }
+
+        #box{
+          width: 60%;
+          margin-left: 20%;
+        }
+        label{
+          font-size: 15px;
+          line-height: 1.5;
+          margin-left: 20px;
+      }
+
+        .title,
+        textarea,
+        .date,
+        .time,
+        .image,
+        select{
+            color: white;
+            font-size: 15px;
+            width:100%;
+            height: 50px;
+            padding: 10px;
+            font-size: 15px;
+            border: 2px solid #00f5ff;           
+            border-radius: 12px;
+            background-color: rgba(0, 245, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        textarea{
+            resize: none;
+            height: 350px;
+            padding: 10px;
+        }
+
+        input:focus,
+        textarea:focus {
+            border: 1px solid #00B8E6;
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 184, 230, 0.5);
+            background: #0F172A;
+            transition: 0.3s;
+        }
+        option{
+            color:black;
+        }
+        #request-list{
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            overflow-x: hidden;
+        }
+        #requests-list .request-card,
+        #requests-list > div {
+            width: 100%;
+            box-sizing: border-box;
+        }
+      .submit {
+          margin-top: 15px;
+          width: 100%;
+          padding: 12px;
+          background: linear-gradient(135deg, #0c4761, #6d9db5);
+          border: none;
+          border-radius: 8px;
+          color: #fff;
+          font-size: 15px;
+          cursor: pointer;
+            transition: 0.3s;
+        }
+        .submit:hover {
+          background: linear-gradient(135deg, #2a596b, #024364);
+          transform: scale(1.02);
+        }
+        
+
+        .notification-badge {
+          position: absolute;
+          right: 10px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #ff4444;
+          font-size: 12px;
+          text-shadow: 0 0 5px #ff4444;
+          animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                text-shadow: 0 0 5px #ff4444;
+            }
+            50% {
+                opacity: 0.5;
+                text-shadow: 0 0 15px #ff4444;
+            }
+        }
+
+        /* Post form textarea */
+        #postDescription {
+            padding: 15px;
+            height: 250px;
+            line-height: 1.5;
+        }
+
+        /* All textareas in post form */
+        #sharepost-section textarea {
+            padding: 15px;
+            height: 200px;
+        }
+
+        .word-count {
+            font-size: 11px;
+            margin-top: 5px;
+            margin-left: 20px;
+            color: #94a3b8;
+        }
+
+        .word-count.valid {
+            color: #4ecb71;
+        }
+
+        .word-count.invalid {
+            color: #ffa500;
+        }
+
+        .error-message {
+            color: #ff4444;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+        .success-message {
+            color: #4ecb71;
+            font-size: 14px;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(78, 203, 113, 0.1);
+            border: 1px solid rgba(78, 203, 113, 0.3);
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .user-post-card {
+            transition: all 0.2s ease;
+        }
+
+        .user-post-card:hover {
+            transform: translateX(2px);
+            border-left-color: #4ecb71;
+        }
+
+        .delete-post-btn {
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+
+        .delete-post-btn:hover {
+            opacity: 1;
+        }
+      </style>
+    </head>
+    <body>
+
+        <header class="flex justify-between items-center px-8 py-4 shrink-0 border-b border-gray-800/50">
+            <div class="flex items-center gap-4">
+            <div class="w-logo">
+                <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCACLAHYDASIAAhEBAxEB/8QAHAABAAEFAQEAAAAAAAAAAAAAAAcBAgQFBggD/8QAQxAAAQIFAgIGBAwEBQUAAAAAAQIDAAQFBhESIQcxEyJBUWFxFBUzgQgYIzJCUlaRoaWx0xYXcsElNFWV0jZDU2KT/8QAGwEBAAEFAQAAAAAAAAAAAAAAAAUBAgQGBwP/xAAwEQABAwMBBQYGAwEAAAAAAAABAAIDBAURQRITITFxIlFhkaHwBjKBscHRFELhYv/aAAwDAQACEQMRAD8AnT4unBv7Hfmc3+7D4unBv7Hfmc3+7Erwgiij4unBv7Hfmc3+7A/B04N4/wCjvzOb/diV4QRRQPg68Gzzs0jzqc3+7D4unBv7Hfmc3+7Erwgiij4unBv7Hfmc3+7GTSuAvCej1SUq9OtToJ2ReRMy7vrCaVocQoKSrCnCDggHBBESdAgEEHkYIuWtmy7Ztup1usUOm+iTlaeExUXencX07upatWFKITu4vZIA38BGnb4P8OE2/IUb+GWvVdOm1TsvKKmXi0p84+UdSV4eVgaR0mvCeqOqSI7/AEJ0aMdXuipSCnSRt3QRcTcfC2wLhZmBW7XkJ5+dd6SYmnUn0pR1asdOD0oAwEgBQASAgAJATGvpvBThXI0OapzFlUpTExr1qfSX3k6khJ0vOEuI2G2lQwdxgnMSMQCQSNxyihbQVaikZgiilPwdeDekFVnY23/xOb/djYjgpwsNbTXRZFK9NP8A29KvRyNOj/L56Hlv8zn1ue8SOQCCDyMWqQlQAI2HKCKN6xwM4TVuaTNzllSDbiEBsJk1OSiAASd0MqQknf5xGcYGdhCJJSkJGEjAhBFWEIQRIQhBEhCEESEWuLQ0guOLShA3KlHAEYEnXKROT5kZSoMPzASVFDatWAOe42i4NJGQFaXNBwStjCPm64ULbSGlrC1YJTjCds5OTy7Nu+PnPzspISxmZ2Ybl2QQkrcOEgk4G/mYoAScBC4NBJPALIhFjDrT7SXWXEOtqGUqQoEH3iL4oqg54hIQhBVSEIQRIQhBEhCEESOJv3iDT7dUqRlEpnKljdsHqNf1nv8AD9IxuMl7/wAL0pEjILHrWcSejP8A4Ucivz7B4+UQI2/hC5iYdKicrWtZySTzJ7zE9a7Tv276X5dB3/4tYvF+FPL/ABoPm1Pd/v2XVVm4qvXHS9U55biOYbB0tp8kjaOXuS6BTLbrE3SJ59udkZYTgUwso1pZdbdW3rHLUlCk9o3jST0/N1R9ErLIcKVqCW2UAlSz2bDmfCN3eHDS4qNwiu246ulmTbbokwEyylanTqTjfGyfvzEtXMhgpnNcQMjgFF25889U1zQXYIyV6HeuCn2yx62r1amFM1d1Lsqy4jV6OCgEoTpHIZ5xFXGWvzs7xRqFJZmX0U6Qt+WKmkvHo33ZiYK0uaeWUpYUM8+tEyCg0iu27SW6tIMzaWWGlthzPVOgd36RFVYtdN0fCBvGlpmzJlFvUtxtYRqAIcmQAR3bxq1JJGydj38geK2atgqH080bMEEdka8eeSeHRaC0roq1HdC5CbUgg5W0rdtY8U/35xOFkXjI3Iz0eBLz6BlxgnmO9J7R+kebLnodfti82qVU1aUEFxtxv2byMHcH9R2Rubeeq6qoyqkMvvTjagpssJJUD7uzzjbq+gp6yLetIBxkH9rnVuvNXaancOBLdW6jp4+hXqCEYNAmJ+ZpEu9U5T0ScUj5VrUDg+7v5xnRo7hskhdYY8PaHDVIQhFFckIQgiRa84hllbziglCElSiewDcmLo5PjBPKp/DatPoVpWpjoknP1yE/oTHpDGZZGsGpA8141MwghfKf6gnyC833jXnrluydq7pOl1zDKSfmNjZI+78SY0dVmiohhJ6iN1eJgydO/cI2/Dakord+UinvI1tOzIW6DyKU5UR9wxHSptini4cmj7BcgtgkrJ3PccucfUlS1wwspduWwawES67rn5dTkiy8U5aTgHCQfpYOSfEDvjE49V6dlfgy1dm5Qn1zW2vVslLtAa33nVaW0gDbOMk47BEmIpFXnHJt2ozEimYQtwUyZZYy5LIUMczjflt243jzkuuvVviD/ENUnfXtB4dK9X0xbiA2iqVhXtHcAkYaT3ctKT2xz+aR9XJ3uJ9geAXUqeOOjj2jlrWj2T4n7L1PRmnGKPJMup0uNy7aFjuISAREUydTYo/wtqnT6iFMKuC2Zb1a4r5j65dx0uIB+sAsHHcDGmqXHOrzUr6PSqAzLzbnVS4t0u4J26qQBkxGlzTl03VLK1z8y5dtEmfWlAddHXRMtbuS2NsJcQCNPLUlI7Y9nWipZG6R4xjTVeTL5SSStjYc5109V6rua2KNcapU1aVD5lVlbRCik7jBBI3wdtvARrbirlvWHIsNJkUtIczpal0pTsMAqJOO0jxMV4W3vTL74eUy75NSWmZpjVMNqOPR3U7OIV3aVAjywYw7ppFAvGRNSnKilqnyaVBM2y4gpIBBWVFQKdIwPeCYw4nF2GvJ2R5LIqotjafAGiU6nngLq6HUpWr0pioyaiph4ZTqGCMHBB8QQRGao4BJ7I1dpsUuWt+TZoryH5AIyy6lesOAkkq1dpJyY2Tns1eRjxeAHHCzYy4tG1zTWO3qjvMItcSXBpI047YRar19IQhBEjguPyFL4XVLSCdK2VHy6VMd7Gi4gUpVcsqr0tHtH5VYb/rAyn8QIyKSQRzsedCD6rEr4TNSyRjmWkeYXkNvdKh3iO04DutscTqYXTjpEOtp/qKDiOLkyTsoYUDgjuMbGgzMxSrgkp2WGXpeYQ42PrYI29/KOiV7N7C5o1BXJrJJuJwXaEH1U5fCXvietSx2qNboLt13K+KXR2k/OC17Kd8AgHOewkRDLUhRrcaolnta5qiULCJpbRwqceKgZh7PepWQPACPtR7hf4jcRL04ppCjK2xihUCXJz6OXMh2ZI7FEZwf/YfVjD6DbEa18P0Ik2p3dB+Str+LruYCylZr2j+B+1399cOBT6au8bcmPRZBKWphqVUVB1lJCesFZO+TnHZ3xGyX5tNQFQ9IdM2HemDxVlWvOdRPfmOjmrguCaoLdCfqTy6e3gJZOOQ5AnmQO4xp+gPdGwUdPNGwtnIcdOnitRuFzp5ZA6maWjHEf9a48Fu+GVWk7U4oPW/NAM2dxHQt2WQlRSiSqgGH2R9ULzkf1IHZE1vW3b1pWpOS01JqnKGW1qmg4NboCtjy3UDtsNxEATVtPXfaFatxpampphg1amTKTgys5LjUhYPYFDKD5g9kTj8H++GeKnB6mV2eYQqYdQqUqLSk9VTyNlnHcrZXhqjTLhE6indCD2c5x71C6TZ6mO50rKktG2AWk48/oea6XhtUKBP2qwLblnJWnyxLCJdxsoU0Rvgg57wc5Ocx0aiAkk7jEYtJp0jS5QSlPlW5ZgHIQgYGYyXfZq8ojXkOcSFNxghoB5+CuhFisAgE6U79uIRar1fCEIIkIQgi8w8bLTctm8Fz8q1im1FZdaIGyF81o8N9x4HwjmWmxMNodZVh1G4j1hdVBp1yUV6lVNrWy6MhQ+c2oclJPYRHmm77Qq9nVUsTSSuXWo9BNJHUdHd4HvEbnarm2oiETz2h6hc/vNmNLUGojHYPof13eS4y06FXbYvWerNk3bLUFqsq/wASp9SkTMya1EkkkA5CcknlkZIyREuscP8AjBMsofYrPCx1twakrRRHSFA9owqOIQtmYA6ZOhf1k8jHT2ldFfts6adNJflCcmXc6yPcOaT5RiVVrLcup3Fp7s8FI0lzbJhtUwOA1wCVs/5ccZv9V4X/AOxO/wDKKfy44y/6rww/2N3/AJR18txYlnZUJepy5aa7dRKm/wAOt+EaS4L2uOoMqbkK5SpRs7fI60L+9Scj3RGspK1zsOcR1J/Ckpai3xty2IO6NH5wuC4j25xNkaG7b1X4k2TbspVPkZr1PR3EzK2jsoHckJwd9x5xN/BG0bbsfhxTbftadE/ItAuKmwoKMw4rdSzjYE93YAB2RAVRoUzNTLj83VpdxxZypepbiie/JH94lTgVZc1Spg1hM3PolVpxoWvQh894bG2B3knwjIrbdDFDvDIS7pz9/VYltulVNUboQBsf299ApgTnG4xFTuMGEWuezV5GIFbQrgABgDAhFi1lAyrcHuhBFfCEIIkIQgiRj1GRk6jJuSc9LNTMu4MLbcTkGMiEVBIOQqEAjBUUXJwfl1uLmLfnegyc+jzGSkeSuY9+Y4+dsK6pFwpXSHXkj6bBCwfu3j0PCJOK71DBhxz1UXJZ6Z5y0bPRecm7XuQkD1LUf/iqNxTOHtzzhGuTRKIP0n1gfgMmJ1hF7rzMRwACtbZoQeJJXDWxw3pVNUiYqK/WEwnBCVDDST5dvv8AujuUgJASkAAbADshCI2WeSY7TzlSUUEcI2WDCRRQykjvGIrCPJeqtKNQws5H3Qi6EESEIQRIQihUkHBUB5mCKsIoFJIJCgcc94rBEhCEESEIQRIQ7cQgiQhCCJCEIIkIQgiRa57NXkYui1z2avIwRHPZq8jDcKGVZycQc9mryMFfOR5/2MEVqVE4PW37MbReonYDtOI+aSemKPogZAi9z5hPaBkQRFZCdzncb++KpJJV4H+0fNBJaCjuSRk++KOKKXgkHAVjMEVyMqOdWOqM498XpORv5R8FqKUpKTg6Uj9YyAABgQRWAnSF554284AnSVE5xnaLUk9MUfRAyBF6N0kHvP6wRWPFaEghXM90I+TqiQoE5CVYH4wgi//Z" alt="logo">
+            </div>
+
+            <div>
+                <h1 class="text-lg font-bold tracking-widest text-white uppercase leading-none">Catalyst</h1>
+                <p class="text-[10px] text-gray-400 tracking-wider">Chemistry Club</p>
+            </div>
+            </div>
+
+            <span class="flex items-center gap-2">
+            <i class="fa-regular fa-user accent-cyan"></i>
+            <p class="text-gray-300" id="headerUsername">Loading...</p>
+            </span>
+
+            <div class="flex items-center gap-6 text-xs">
+            <button class="text-gray-400 hover:text-blue-400 font-semibold pl-6 transition-colors" onclick="window.location.href='index.html?page=home'">Home</button>
+            <button class="text-gray-400 hover:text-blue-400 font-semibold border-l border-gray-700 pl-6 transition-colors"  onclick="window.location.href='index.html?page=posts'">Posts</button>
+            <button class="text-gray-400 hover:text-red-400 font-semibold border-l border-gray-700 pl-6 transition-colors" onclick="logout()">Logout</button>
+            </div>
+        </header>
+
+    <div class="flex flex-1 overflow-hidden overflow-x-hidden">
+        <aside class="flex flex-col gap-3 border-r border-gray-800/50 flex-shrink-0" style="width: 20%; padding: 1.5rem;">
+        <button class="btn-sidebar active" id="btn-profile" onclick="showSection('profile-section')">
+            <i class="fa-solid fa-user-gear"></i> Profile
+        </button>
+        <button class="btn-sidebar" id="btn-notif" onclick="showSection('notification-section')" style="position: relative;">
+            <i class="fa-solid fa-bell"></i> Notification
+            <span id="notifBadge" class="notification-badge" style="display: none;">●</span>
+        </button>
+        <button class="btn-sidebar" id="btn-requests" onclick="showSection('requests-section')" style="position: relative;">
+            <i class="fa-solid fas fa-hourglass-half"></i> Requests
+            <span id="requestsBadge" class="notification-badge" style="display: none;">●</span>
+        </button>
+        <button class="btn-sidebar" id="btn-request" onclick="showSection('request-section')">
+            <i class="fa-solid fa-paper-plane"></i> Submit request
+        </button>
+        <button class="btn-sidebar" id="btn-sharepost" onclick="showSection('sharepost-section')">
+            <i class="fa-solid fa-share-nodes"></i> Share post
+        </button>
+        <button class="btn-sidebar" id="btn-depa" onclick="showSection('depa-section')">
+            <i class="fa-solid fa-flask-vial"></i> Department System
+        </button>
+        <button class="btn-sidebar" id="btn-club" onclick="showSection('club-section')">
+            <i class="fa-solid fa-users-rectangle"></i> Club System
+        </button>
+        </aside>
+
+        <main class="p-4 overflow-y-auto min-w-0" style="width: 80%; flex: 1; height: 100%; display: flex; flex-direction: column;">
+
+        <div id="profile-section" class="content-area">
+            <h2 class="text-2xl font-bold mb-6 italic text-white">Profile</h2>
+            <div class="flex flex-col gap-8">
+            <div class="glass-card p-8 flex items-start gap-10 flex-wrap">
+                <div class="flex items-center gap-6 flex-1">
+
+                <div class="w-24 h-24 rounded-full border-2 border-accent flex items-center justify-center text-4xl bg-gradient-to-br from-cyan-500 to-teal-600 shadow-lg shadow-cyan-500/30" id="profileAvatar">
+                    <i class="fa-solid fa-user text-white"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold italic" id="profileUsername">Loading...</h2>
+                    <p class="text-xs text-gray-400 mt-1">
+                    <i class="fa-regular fa-envelope mr-1"></i> <span id="profileEmail">Loading...</span>
+                    </p>
+                    <p class="text-xs text-gray-400 mt-1">
+                    <i class="fa-regular fa-id-card mr-1"></i> <span id="profileId">Loading...</span>
+                    </p>
+                    <p class="text-xs text-gray-400 mt-1">
+                    <i class="fa-solid fa-graduation-cap mr-1"></i> <span id="profileFaculty">Loading...</span>
+                    </p>
+                    <p class="text-xs text-gray-400 mt-1">
+                    <i class="fa-solid fa-layer-group mr-1"></i> <span id="profileLevel">Loading...</span>
+                    </p>
+                    <p class="text-xs text-gray-400 mt-1">
+                    <i class="fa-solid fa-user-tag mr-1"></i> Role: <span id="profileRole" class="accent-cyan font-bold">Loading...</span>
+                    </p>
+                    <p class="text-[10px] text-yellow-500 italic mt-2" id="nonMemberMessage" style="display: none;">
+                    <i class="fa-solid fa-triangle-exclamation mr-1"></i> Not a member yet.
+                    </p>
+                </div>
+                </div>
+                <div class="flex-1 border-l border-gray-800 pl-10" id="myDepartmentsBlock">
+                <h3 class="accent-cyan text-xl font-bold mb-4 tracking-wide">My Departments</h3>
+                <div class="text-[12px] space-y-1 text-gray-300">
+                    <p class="font-semibold text-gray-500 mb-2">Active Roles:</p>
+                    <p>• Scientific Department as: <span class="accent-cyan font-bold" id="scientific-depa">{{Role}}</span></p>
+                    <p>• Administration and Logistics Department as: <span class="accent-cyan font-bold" id="admin-logistics-depa">{{Role}}</span></p>
+                    <p>• Communications Department as: <span class="accent-cyan font-bold" id="communications-depa">{{Role}}</span></p>
+                </div>
+                </div>
+            </div>
+            <div class="flexes">
+                <div class="right" style="max-width: 100%; width: 100%; margin-bottom: 20px;">
+                    <h3 class="noReq mb-2 px-10">My Requests:</h3>
+                    <div id="requests-list">
+                        <img src="Images/no-requests.png" class="no-requests">
+                        <p class="text-gray-400 text-sm mt-2">No pending requests</p>
+                    </div>
+                </div>
+
+                <!-- My Posts (bottom) -->
+                <div class="left" style="width: 100%;">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="noPos">My Posts:</h3>
+                        <button class="text-xs text-red-400 hover:text-red-300 transition" onclick="clearMyPosts()" style="background: none; border: none; cursor: pointer;">
+                            <i class="fa-solid fa-trash-can"></i> Clear All
+                        </button>
+                    </div>
+                    <div id="my-posts-list">
+                        <img src="Images/no-posts.png" class="no-posts">
+                        <p class="text-gray-400 text-sm mt-2">No posts yet. Share your first idea!</p>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        
+
+        <!-- NOTIFICATIONS -->
+            <div id="notification-section" class="content-area hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold italic text-white">Notifications:</h2>
+                <button class="bg-red-500/10 text-red-500 border border-red-500/20 rounded-md text-xs font-bold hover:bg-red-500 hover:text-white transition px-3 py-1" onclick="clearAll()">Clear All</button>
+            </div>
+            <div id="notifContainer"></div>  <!-- Replies go here -->
+            </div>
+
+        <!-- REQUESTS (reply) -->
+            <div id="requests-section" class="content-area hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold italic text-white">Requests</h2>
+                <button class="bg-red-500/10 text-red-500 border border-red-500/20 rounded-md text-xs font-bold hover:bg-red-500 hover:text-white transition px-3 py-1" onclick="clearRequests()">Clear All</button>
+            </div>
+            <div id="notif-card"></div>  <!-- Requests go here -->
+            </div>
+
+        <!-- SUBMIT REQUEST  -->
+            <div id="request-section" class="content-area hidden">
+                <h2 class="text-2xl font-bold mb-6 italic text-white">Submit Request</h2>
+                <div class="section-divider" id="toManagerSection">
+                <h3 class="text-base font-bold mb-3" style="color:var(--accent)">To Manager:</h3>
+                <div class="request-type">
+                    <a href="#" class="req-type-card" onclick="openPanel('join.html')">Join Request</a>
+                    <a href="#" class="req-type-card" onclick="openPanel('withdraw.html')">Member Withdraw Request</a>
+                    <a href="#" class="req-type-card" onclick="openPanel('withdraw-position.html')">Instructor Withdraw Request</a>
+                </div>
+                </div>
+                <h3 class="text-base font-bold mb-3" style="color:var(--accent)">To President:</h3>
+                <div class="request-type">
+                <a href="#" class="req-type-card" onclick="openPanel('event-idea.html')">Event Idea Request</a>
+                <a href="#" class="req-type-card" onclick="openPanel('event-join.html')">Join Event Request</a>
+                <a href="#" class="req-type-card" onclick="openPanel('nomination.html')">Nomination Request</a>
+                <a href="#" class="req-type-card" onclick="openPanel('withdraw-position.html')">Manager Withdraw Request</a>
+                </div>
+            </div>
+
+        
+            <!-- SHARE POST SECTION -->
+            <div id="sharepost-section" class="content-area hidden">
+                <h2 class="text-2xl font-bold mb-2 italic text-white">Share a post</h2>
+                <p class="text-gray-400 text-sm mb-6">Inspire the chemistry community with your discoveries, events or insights.</p>
+                <div class="share-post-form-container" id="box">
+                    <form id="postForm" onsubmit="submitPost(event)" enctype="multipart/form-data">
+                        <fieldset class="fieldset">
+                            <legend>General Informations</legend>
+                            
+                            <!-- Department Container -->
+                            <div id="departmentContainer">
+                                <label>Select department</label><br>
+                                <select name="department" id="department" required>
+                                    <option value="" disabled selected></option>
+                                    <option value="Scientific Department">Scientific department</option>
+                                    <option value="Events and Communication Department">Events & Communication Department</option>
+                                    <option value="Administration and Logistics  Department">Administration & Logistics Department</option>
+                                </select><br><br>
+                            </div>
+
+                            <!-- Sub-department Container -->
+                            <div id="subdepartmentContainer" class="hidden">
+                                <label>Select Sub-department</label><br>
+                                <select name="subdepartment" id="subdepartment" required>
+                                <option value="" disabled selected></option>
+                                <option value="Training and Education Sub-department">Training and Education Sub-department</option>
+                                <option value="Research Sub-department">Research Sub-department</option>
+                                <option value="Workshops Sub-department">Workshops Sub-department</option>
+                                <option value="Events Sub-department">Event Sub-department</option>
+                                <option value="Media and Communication Sub-department">Media and Communication Sub-department</option>
+                                <option value="Administration Sub-department">Administration Sub-department</option>
+                                <option value="Partnership and Sponsorship Sub-department">Partnership and Sponsorship Sub-department</option>
+                                <option value="Logistics and Equipment Sub-department">Logistics and Equipement Sub-department</option>
+                            </select><br><br>
+                            </div>
+
+                            <label>Post type:</label><br>
+                            <input type="radio" name="postType" value="Event" id="postTypeEvent">
+                            <label for="postTypeEvent">Event</label><br>
+                            <input type="radio" name="postType" value="Workshop" id="postTypeWorkshop">
+                            <label for="postTypeWorkshop">Workshop</label><br>
+                            <input type="radio" name="postType" value="Informative" id="postTypeInformative">
+                            <label for="postTypeInformative">Informative</label><br>
+                        </fieldset>
+                        <br>
+                        <fieldset class="fieldset">
+                            <legend>Post Informations</legend>
+                            
+                            <label>Title:</label><br>
+                            <input type="text" id="postTitle" class="title" required><br><br>
+
+                            <label>Description:</label><br>
+                            <textarea id="postDescription" placeholder="What are you thinking about?" required></textarea><br>
+                            <div class="word-count invalid" id="postWordCount">0 / 20 words minimum</div><br>
+
+                            <div id="eventDateTimeFields" style="display: none;">
+                                <label>Event Date:</label><br>
+                                <input type="date" id="postEventDate" class="date"><br>
+                                <div id="postDateError" class="error-message" style="display: none;"></div><br>
+                                
+                                <label>Event Time:</label><br>
+                                <input type="time" id="postEventTime" class="time"><br><br>
+                            </div>
+
+                            <label>Upload Image (optional):</label><br>
+                            <input type="file" id="postImage" class="image" accept="image/*"><br><br>
+                        </fieldset>
+                        <div id="postSuccessMessage" class="success-message" style="display: none; text-align: center; margin: 10px 0;">
+                            <i class="fa-solid fa-circle-check"></i> Post published successfully!
+                        </div>
+                        <button type="submit" class="submit">Publish</button>
+                    </form>
+                </div>
+                <div class="mt-6 text-center text-xs text-gray-500">Your post will be visible to all department members and club executives.</div>
+            </div>
+
+            <div id="depa-section" class="content-area hidden">
+                <h2 class="text-2xl font-bold mb-2 italic text-white">Department Information System</h2>
+                
+                <!-- Stats Cards -->
+                <div class="flex gap-4 mb-8">
+                    <div class="info-stat-card flex-1">
+                        <i class="fa-solid fa-users info-stat-icon"></i>
+                        <div>
+                            <p class="info-stat-num" id="totalMembers">0</p>
+                            <p class="info-stat-label">Total Members</p>
+                        </div>
+                    </div>
+                    <div class="info-stat-card flex-1">
+                        <i class="fa-solid fa-chalkboard-user info-stat-icon"></i>
+                        <div>
+                            <p class="info-stat-num" id="totalInstructors">0</p>
+                            <p class="info-stat-label">Total Instructors</p>
+                        </div>
+                    </div>
+                    <div class="info-stat-card flex-1">
+                        <i class="fa-solid fa-layer-group info-stat-icon"></i>
+                        <div>
+                            <p class="info-stat-num" id="totalSubDepts">0</p>
+                            <p class="info-stat-label">Sub-Departments</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold mb-2 italic text-white" style="color:var(--accent)" id="departmentName">Loading...</h3>
+                </div>
+                <!-- Search and Actions -->
+                <div class="flex justify-between items-center mb-4">
+                        
+                    <div class="flex gap-2">
+                        <input type="text" id="searchInput" placeholder="Search by Student ID or username" class="info-input" style="width: 250px;">
+                        <button class="info-btn" onclick="searchMember()">Search</button>
+                        <button class="info-btn" onclick="clearSearch()">Clear</button>
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="info-btn" onclick="openAddModal()">
+                            <i class="fa-solid fa-plus"></i> Add
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Members Table -->
+                <div class="overflow-x-auto">
+                    <table class="info-table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Student ID</th>
+                                <th>Level</th>
+                                <th>Faculty</th>
+                                <th>Sub-department</th>
+                                <th>Role</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="departmentTableBody">
+                            <tr>
+                                <td colspan="7" class="text-center text-gray-400">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Add/Edit Modal -->
+            <div id="memberModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center">
+                <div class="glass-card p-6 w-96 max-w-[90%]">
+                    <h3 class="text-xl font-bold mb-4" id="modalTitle">Add Member/Instructor</h3>
+                    
+                    <!-- Direct input form - NO SEARCH REQUIRED -->
+                    <div id="directAddSection">
+                        <label class="text-sm text-gray-300">Student ID (Registration Number)</label>
+                        <input type="text" id="directUserId" placeholder="Enter Student ID" class="sp-input mb-3">
+                        
+                        <label class="text-sm text-gray-300">Username</label>
+                        <input type="text" id="directUsername" placeholder="Enter Username" class="sp-input mb-3">
+                        
+                        <!-- REMOVED: Email field -->
+                        
+                        <label class="text-sm text-gray-300">Faculty Name</label>
+                        <input type="text" id="directFaculty" placeholder="Enter Faculty" class="sp-input mb-3">
+                        
+                        <label class="text-sm text-gray-300">Level</label>
+                        <input type="text" id="directLevel" placeholder="Enter Level (e.g., L1, L2, M1)" class="sp-input mb-3">
+                        
+                        <label class="text-sm text-gray-300">Role</label>
+                        <select id="memberRole" class="sp-input mb-3">
+                            <option value="member">Member</option>
+                            <option value="instructor">Instructor</option>
+                        </select>
+                        
+                        <label class="text-sm text-gray-300">Sub-department</label>
+                        <select id="memberSubDept" class="sp-input mb-4">
+                            <option value="">Select sub-department</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex justify-end gap-3 mt-4">
+                        <button onclick="closeModal()" class="sp-cancel sp-btn">Cancel</button>
+                        <button onclick="confirmDirectAdd()" class="sp-publish sp-btn">Add Member</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modify Modal -->
+            <div id="modifyModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center">
+                <div class="glass-card p-6 w-96 max-w-[90%]">
+                    <h3 class="text-xl font-bold mb-4">Modify User</h3>
+                    
+                    <div class="bg-cyan-500/10 p-3 rounded-lg mb-3">
+                        <p class="text-sm"><span class="text-gray-400">User:</span> <span id="modifyUsername" class="text-white font-bold"></span></p>
+                        <p class="text-sm"><span class="text-gray-400">Student ID:</span> <span id="modifyUserId" class="text-white"></span></p>
+                    </div>
+                    
+                    <label class="text-sm text-gray-300">New Role</label>
+                    <select id="modifyRole" class="sp-input mb-3">
+                        <option value="member">Member</option>
+                        <option value="instructor">Instructor</option>
+                    </select>
+                    
+                    <label class="text-sm text-gray-300">New Sub-department</label>
+                    <select id="modifySubDept" class="sp-input mb-4">
+                        <option value="">Select sub-department</option>
+                    </select>
+                    
+                    <div class="flex justify-end gap-3">
+                        <button onclick="closeModifyModal()" class="sp-cancel sp-btn">Cancel</button>
+                        <button onclick="confirmModify()" class="sp-publish sp-btn">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CLUB INFO SYSTEM -->
+            <div id="club-section" class="content-area hidden">
+                <h2 class="text-2xl font-bold mb-2 italic text-white">Club Information System</h2>
+                <p class="text-gray-400 text-sm mb-6">Manage club members and department managers</p>
+                
+                <!-- Stats Cards -->
+                <div class="flex gap-4 mb-8">
+                    <div class="info-stat-card flex-1">
+                        <i class="fa-solid fa-users info-stat-icon"></i>
+                        <div>
+                            <p class="info-stat-num" id="clubTotalMembers">0</p>
+                            <p class="info-stat-label">Total Members</p>
+                        </div>
+                    </div>
+                    <div class="info-stat-card flex-1">
+                        <i class="fa-solid fa-building info-stat-icon"></i>
+                        <div>
+                            <p class="info-stat-num" id="clubTotalDepartments">0</p>
+                            <p class="info-stat-label">Departments</p>
+                        </div>
+                    </div>
+                    <div class="info-stat-card flex-1">
+                        <i class="fa-solid fa-chalkboard-user info-stat-icon"></i>
+                        <div>
+                            <p class="info-stat-num" id="clubTotalManagers">0</p>
+                            <p class="info-stat-label">Managers</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Search and Actions -->
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex gap-2">
+                        <input type="text" id="clubSearchInput" placeholder="Search by Student ID or Username" class="info-input" style="width: 300px;">
+                        <button class="info-btn" onclick="searchClubMembers()">Search</button>
+                        <button class="info-btn" onclick="clearClubSearch()">Clear</button>
+                    </div>
+                    <div class="flex gap-2">
+                        
+                        <button class="info-btn" onclick="openAddManagerModal()">
+                            <i class="fa-solid fa-plus"></i> Add Manager
+                        </button>
+                        <button class="info-btn" onclick="openAddVicePresidentModal()">
+                            <i class="fa-solid fa-user-tie"></i> Add Vice President
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Members Table -->
+                <div class="overflow-x-auto">
+                    <table class="info-table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Student ID</th>
+                                <th>Level</th>
+                                <th>Faculty</th>
+                                <th>Department</th>
+                                <th>Sub-department</th>
+                                <th>Role</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clubTableBody">
+                            <tr>
+                                <td colspan="8" class="text-center text-gray-400">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Add Manager Modal -->
+            <div id="addManagerModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center">
+                <div class="glass-card p-6 w-[500px] max-w-[90%]">
+                    <h3 class="text-xl font-bold mb-4">Add Manager</h3>
+                    
+                    <div id="searchManagerSection">
+                        <label class="text-sm text-gray-300">Search User by Student ID or Username</label>
+                        <div class="flex gap-2 mt-1 mb-3">
+                            <input type="text" id="searchManagerInput" placeholder="Enter Student ID or Username" class="sp-input flex-1">
+                            <button class="info-btn" onclick="searchUserForManager()">Search</button>
+                        </div>
+                    </div>
+                    
+                    <div id="managerUserInfo" class="hidden">
+                        <div class="bg-cyan-500/10 p-3 rounded-lg mb-3">
+                            <p class="text-sm"><span class="text-gray-400">User:</span> <span id="managerUsername" class="text-white font-bold"></span></p>
+                            <p class="text-sm"><span class="text-gray-400">Student ID:</span> <span id="managerUserId" class="text-white"></span></p>
+                            <p class="text-sm"><span class="text-gray-400">Level:</span> <span id="managerLevel" class="text-white"></span></p>
+                            <p class="text-sm"><span class="text-gray-400">Faculty:</span> <span id="managerFaculty" class="text-white"></span></p>
+                        </div>
+                    </div>
+                    
+                    <div id="managerFormFields" class="hidden">
+                        <label class="text-sm text-gray-300">Select Department</label>
+                        <select id="managerDepartment" class="sp-input mb-4">
+                            <option value="">Select department</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex justify-end gap-3 mt-4">
+                        <button onclick="closeAddManagerModal()" class="sp-cancel sp-btn">Cancel</button>
+                        <button onclick="confirmAddManager()" class="sp-publish sp-btn">Add Manager</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modify Manager Modal -->
+            <div id="modifyManagerModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center">
+                <div class="glass-card p-6 w-[500px] max-w-[90%]">
+                    <h3 class="text-xl font-bold mb-4">Modify Manager</h3>
+                    
+                    <div class="bg-cyan-500/10 p-3 rounded-lg mb-3">
+                        <p class="text-sm"><span class="text-gray-400">Manager:</span> <span id="modifyManagerUsername" class="text-white font-bold"></span></p>
+                        <p class="text-sm"><span class="text-gray-400">Student ID:</span> <span id="modifyManagerUserId" class="text-white"></span></p>
+                    </div>
+                    
+                    <label class="text-sm text-gray-300">New Department</label>
+                    <select id="modifyManagerDepartment" class="sp-input mb-4">
+                        <option value="">Select department</option>
+                    </select>
+                    
+                    <div class="flex justify-end gap-3">
+                        <button onclick="closeModifyManagerModal()" class="sp-cancel sp-btn">Cancel</button>
+                        <button onclick="confirmModifyManager()" class="sp-publish sp-btn">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modify President Modal -->
+            <div id="modifyPresidentModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center">
+                <div class="glass-card p-6 w-[500px] max-w-[90%]">
+                    <h3 class="text-xl font-bold mb-4">Modify President Information</h3>
+                    
+                    <div class="bg-red-500/10 p-3 rounded-lg mb-4">
+                        <p class="text-sm text-gray-300">You are the current President. You can transfer your role to another member.</p>
+                    </div>
+                    
+                    <div id="presidentSearchSection">
+                        <label class="text-sm text-gray-300">Transfer Presidency To (Optional)</label>
+                        <div class="flex gap-2 mt-1 mb-3">
+                            <input type="text" id="presidentSearchInput" placeholder="Enter Student ID or Username" class="sp-input flex-1">
+                            <button class="info-btn" onclick="searchUserForPresidentTransfer()">Search</button>
+                        </div>
+                    </div>
+                    
+                    <div id="presidentTransferInfo" class="hidden">
+                        <div class="bg-cyan-500/10 p-3 rounded-lg mb-3">
+                            <p class="text-sm"><span class="text-gray-400">User:</span> <span id="presidentTransferUsername" class="text-white font-bold"></span></p>
+                            <p class="text-sm"><span class="text-gray-400">Student ID:</span> <span id="presidentTransferUserId" class="text-white"></span></p>
+                            <p class="text-sm"><span class="text-gray-400">Current Role:</span> <span id="presidentTransferUserRole" class="text-white"></span></p>
+                        </div>
+                    </div>
+                    
+                    <div id="presidentResignSection" class="mt-4 pt-3 border-t border-gray-700">
+                        <p class="text-sm text-gray-400 mb-2">Or simply resign from the position (you will become a regular member)</p>
+                        <button onclick="confirmResignPresident()" class="bg-red-500/20 text-red-400 border border-red-500/30 px-4 py-2 rounded-lg hover:bg-red-500 hover:text-white transition w-full">
+                            <i class="fa-solid fa-user-minus"></i> Resign as President
+                        </button>
+                    </div>
+                    
+                    <div class="flex justify-end gap-3 mt-4">
+                        <button onclick="closeModifyPresidentModal()" class="sp-cancel sp-btn">Cancel</button>
+                        <button onclick="confirmTransferPresidency()" class="sp-publish sp-btn">Transfer Presidency</button>
+                    </div>
+                </div>
+            </div>
+<!-- Add VP Modal -->
+<div id="addVpModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center">
+    <div class="glass-card p-6 w-[500px] max-w-[90%]">
+        <h3 class="text-xl font-bold mb-4">Add Vice President</h3>
+        
+        <div id="addVpSearchSection">
+            <label class="text-sm text-gray-300">Search User to become Vice President</label>
+            <div class="flex gap-2 mt-1 mb-3">
+                <input type="text" id="addVpSearchInput" placeholder="Enter Student ID or Username" class="sp-input flex-1">
+                <button class="info-btn" onclick="searchUserForAddVP()">Search</button>
+            </div>
+        </div>
+        
+        <div id="addVpUserInfo" class="hidden">
+            <div class="bg-cyan-500/10 p-3 rounded-lg mb-3">
+                <p class="text-sm"><span class="text-gray-400">User:</span> <span id="addVpUsername" class="text-white font-bold"></span></p>
+                <p class="text-sm"><span class="text-gray-400">Student ID:</span> <span id="addVpUserId" class="text-white"></span></p>
+                <p class="text-sm"><span class="text-gray-400">Level:</span> <span id="addVpLevel" class="text-white"></span></p>
+                <p class="text-sm"><span class="text-gray-400">Faculty:</span> <span id="addVpFaculty" class="text-white"></span></p>
+                <p class="text-sm"><span class="text-gray-400">Current Role:</span> <span id="addVpCurrentRole" class="text-white"></span></p>
+            </div>
+        </div>
+        
+        <div class="flex justify-end gap-3 mt-4">
+            <button onclick="closeAddVpModal()" class="sp-cancel sp-btn">Cancel</button>
+            <button onclick="confirmAddVicePresident()" class="sp-publish sp-btn">Make Vice President</button>
+        </div>
+    </div>
+</div>
+        </main >
+    </div>
+
+    <script>
+        const user = JSON.parse(localStorage.getItem('currentUser'));
+        const currentUserRole = user ? user.role : 'none';
+        window.showSection = function(sectionId) {
+            console.log("showSection called with:", sectionId);
+            document.querySelectorAll('.content-area').forEach(div => div.classList.add('hidden'));
+            const target = document.getElementById(sectionId);
+            if (target) {
+                target.classList.remove('hidden');
+                console.log("Showing section:", sectionId);
+            } else {
+                console.error("Section not found:", sectionId);
+            }
+            if (sectionId === 'profile-section') {
+                if (typeof loadProfileData === 'function') loadProfileData();
+                if (user && user.id && typeof loadUserRequests === 'function') loadUserRequests(user.id);
+                if (typeof loadUserPosts === 'function') loadUserPosts();
+            }
+            if (sectionId === 'requests-section' && typeof displayRequests === 'function') {
+                displayRequests();
+                const badge = document.getElementById('requestsBadge');
+                if (badge) badge.style.display = 'none';
+            }
+            if (sectionId === 'notification-section' && typeof displayInbox === 'function') {
+                displayInbox();
+                const badge = document.getElementById('notifBadge');
+                if (badge) badge.style.display = 'none';
+            }
+            if (sectionId === 'depa-section' && typeof loadDepartmentData === 'function') {
+                loadDepartmentData();
+            }
+            if (sectionId === 'club-section' && typeof loadClubData === 'function') {
+                loadClubData();
+            }
+            document.querySelectorAll('.btn-sidebar').forEach(btn => btn.classList.remove('active'));
+            const btnMap = {
+                'profile-section': 'btn-profile',
+                'notification-section': 'btn-notif',
+                'requests-section': 'btn-requests',
+                'request-section': 'btn-request',
+                'sharepost-section': 'btn-sharepost',
+                'depa-section': 'btn-depa',
+                'club-section': 'btn-club'
+            };
+            const activeBtn = document.getElementById(btnMap[sectionId]);
+            if (activeBtn) activeBtn.classList.add('active');
+        };
+        setTimeout(function() {
+            console.log("Forcing profile section to show");
+            const profileSection = document.getElementById('profile-section');
+            if (profileSection) {
+                document.querySelectorAll('.content-area').forEach(div => div.classList.add('hidden'));
+                profileSection.classList.remove('hidden');
+                if (typeof loadProfileData === 'function') loadProfileData();
+                if (user && user.id && typeof loadUserRequests === 'function') loadUserRequests(user.id);
+                if (typeof loadUserPosts === 'function') loadUserPosts();
+                document.querySelectorAll('.btn-sidebar').forEach(btn => btn.classList.remove('active'));
+                const profileBtn = document.getElementById('btn-profile');
+                if (profileBtn) profileBtn.classList.add('active');
+            }
+        }, 100);
+
+        const departmentContainer = document.getElementById('departmentContainer');
+        const subdepartmentContainer = document.getElementById('subdepartmentContainer');
+        const department = document.getElementById('department');
+        const subdepartment = document.getElementById('subdepartment');
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        async function loadUserPosts() {
+            console.log("🔵 loadUserPosts called");
+            const container = document.getElementById('my-posts-list');
+            console.log("🔵 Container found:", container);
+
+            try {
+                const response = await fetch(`/api/user-posts/${user.id}`);
+                const data = await response.json();
+                if (data.success && data.posts && data.posts.length > 0) {
+                    container.innerHTML = '';
+                    data.posts.forEach(post => {
+                        const card = document.createElement('div');
+                        card.className = 'user-post-card';
+                        card.style = `
+                            background: #09192b;
+                            border-left: 4px solid var(--accent);
+                            padding: 12px;
+                            margin-bottom: 10px;
+                            border-radius: 4px;
+                            text-align: left;
+                            position: relative;
+                        `;
+                        let typeIcon = '📢';
+                        if (post.Type_post === 'Event') typeIcon = '📅';
+                        if (post.Type_post === 'Workshop') typeIcon = '🔬';
+                        card.innerHTML = `
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                                <span style="color: white; font-weight: bold;">${typeIcon} ${escapeHtml(post.Title_post)}</span>
+                                <div>
+                                    <span style="color: var(--accent); font-size: 10px;">${new Date(post.Date_post).toLocaleDateString()}</span>
+                                    <button class="delete-post-btn" onclick="deleteUserPost(${post.PostID})" style="background: none; border: none; color: #ff4444; cursor: pointer; margin-left: 8px;">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <p style="color: #94a3b8; font-size: 12px; line-height: 1.4; margin: 0; white-space: pre-line;">
+                                ${formatPostDescription(post.Description_post)}
+                            </p>
+                        `;
+                        container.appendChild(card);
+                    });
+                } else {
+                    console.log("🔵 No posts found");
+                    container.innerHTML = `
+                        <img src="Images/no-posts.png" class="no-posts">
+                        <p class="text-gray-400 text-sm mt-2">No posts yet. Share your first idea!</p>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading user posts:', error);
+                container.innerHTML = `
+                    <img src="Images/no-posts.png" class="no-posts">
+                    <p class="text-gray-400 text-sm mt-2">Error loading posts</p>
+                `;
+            }
+        }
+        function formatPostDescription(description) {
+            if (!description) return '';
+            return description.replace(/\n/g, '<br>');
+        }
+        async function deleteUserPost(postId) {
+            if (confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
+                try {
+                    const response = await fetch(`/api/delete-post/${postId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        await loadUserPosts();
+                        alert('Post deleted successfully');
+                    } else {
+                        alert('Error deleting post');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Failed to delete post');
+                }
+            }
+        }
+
+        async function clearMyPosts() {
+            if (confirm('⚠️ Warning: This will delete ALL your posts. This action cannot be undone. Are you sure?')) {
+                try {
+                    const response = await fetch(`/api/user-posts/${user.id}`);
+                    const data = await response.json();
+                    
+                    if (data.success && data.posts.length > 0) {
+                        for (const post of data.posts) {
+                            await fetch(`/api/delete-post/${post.PostID}`, {
+                                method: 'DELETE'
+                            });
+                        }
+                        await loadUserPosts();
+                        alert(`✅ Cleared ${data.posts.length} post${data.posts.length === 1 ? '' : 's'}.`);
+                    } else {
+                        alert('No posts to clear.');
+                    }
+                } catch (error) {
+                    console.error('Error clearing posts:', error);
+                    alert('Error clearing posts');
+                }
+            }
+        }
+
+        async function loadUserRequests(userId) {
+            const listContainer = document.getElementById('requests-list');
+            if (!listContainer) return;
+
+            try {
+                const response = await fetch(`/api/user-requests/${userId}`);
+                const data = await response.json();
+
+                if (data.success && data.requests && data.requests.length > 0) {
+                    listContainer.innerHTML = ''; 
+
+                    data.requests.forEach(req => {
+                        const createdDate = new Date(req.Created_at);
+                        const formattedDate = createdDate.toLocaleDateString();
+                        const formattedTime = createdDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        const card = document.createElement('div');
+                        card.className = 'request-card';
+                        const formattedDetails = req.Details_request.replace(/<br>/g, '\n');
+                        
+                        let statusColor = '#ffff00';
+                        if (req.Status_request === 'approved') statusColor = '#4ecb71';
+                        if (req.Status_request === 'rejected') statusColor = '#ff4444';
+
+                        card.style = `
+                            background: #09192b;
+                            border-left: 4px solid ${statusColor};
+                            padding: 12px;
+                            margin-bottom: 10px;
+                            border-radius: 4px;
+                            text-align: left;
+                        `;
+
+                        card.innerHTML = `
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
+                                <span style="color: white; font-weight: bold; flex-shrink: 0;">${req.Type_request}</span>
+                                <span style="color: ${statusColor}; font-size: 11px; font-weight: bold; flex-shrink: 0;">
+                                    ${req.Status_request.toUpperCase()}
+                                </span>
+                            </div>
+                            <p style="color: #94a3b8; font-size: 8px; margin: 0; white-space: pre-line; font-weight: bold">
+                                📅 Submitted: ${formattedDate} at ${formattedTime}
+                            </p>
+                            <p style="color: #94a3b8; font-size: 12px; line-height: 1.6; margin: 0; white-space: pre-line;">
+                                ${escapeHtml(formattedDetails)}
+                            </p>
+                        `;
+                        
+                        listContainer.appendChild(card);
+                    });
+                } else {
+                    listContainer.innerHTML = `
+                        <img src="Images/no-requests.png" class="no-requests">
+                        <p class="text-gray-400 text-sm mt-2">No pending requests</p>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error fetching requests:', error);
+                listContainer.innerHTML = `
+                    <img src="Images/no-requests.png" class="no-requests">
+                    <p class="text-gray-400 text-sm mt-2">Error loading requests</p>
+                `;
+            }
+        }
+
+        function loadProfileData() {
+            console.log("========== LOAD PROFILE DATA ==========");
+            console.log("Current user object:", user);
+            console.log("User role:", user.Role || user.role);
+            console.log("User departments:", user.departments);
+            
+            if (user) {
+                
+                const displayUsername = user.username || 'User';
+                
+                console.log("Setting username to:", displayUsername);
+                document.getElementById('headerUsername').textContent = displayUsername;
+                document.getElementById('profileUsername').textContent = displayUsername;
+                document.getElementById('profileEmail').textContent = user.email || 'Not specified';
+                document.getElementById('profileId').textContent = user.UserID || user.id || 'Not specified';
+                document.getElementById('profileFaculty').textContent = user.Faculty_name || user.faculty || 'Not specified';
+                document.getElementById('profileLevel').textContent = user.Level || user.level || 'Not specified';
+                document.getElementById('profileRole').textContent = user.Role || user.role || 'none';
+                
+                const profileAvatar = document.getElementById('profileAvatar');
+                if (profileAvatar) {
+                    
+                    if (user.ProfilePicture || user.profilePicture) {
+                        
+                        const picPath = user.ProfilePicture || user.profilePicture;
+                        profileAvatar.innerHTML = `<img src="${picPath}" class="w-full h-full object-cover rounded-full">`;
+                        profileAvatar.classList.remove('bg-gradient-to-br', 'from-cyan-500', 'to-teal-600');
+                    } else {
+                        
+                        let initial = displayUsername.charAt(0);
+                        if (initial === '@' && displayUsername.length > 1) {
+                            initial = displayUsername.charAt(1).toUpperCase();
+                        } else {
+                            initial = initial.toUpperCase();
+                        }
+                        profileAvatar.innerHTML = initial;
+                        profileAvatar.classList.add('bg-gradient-to-br', 'from-cyan-500', 'to-teal-600');
+                    }
+                }
+                
+                console.log("Profile role set to:", user.Role || user.role || 'none');
+                
+                const departmentMap = {
+                    1: 'scientific-depa',
+                    2: 'admin-logistics-depa', 
+                    3: 'communications-depa'
+                };
+                
+                const scientificDepa = document.getElementById('scientific-depa');
+                const adminLogisticsDepa = document.getElementById('admin-logistics-depa');
+                const communicationsDepa = document.getElementById('communications-depa');
+                
+                if (scientificDepa) scientificDepa.textContent = 'none';
+                if (adminLogisticsDepa) adminLogisticsDepa.textContent = 'none';
+                if (communicationsDepa) communicationsDepa.textContent = 'none';
+                
+                const userDeptId = user.DepartmentID || user.departmentid || user.departmentId;
+                const userRole = user.Role || user.role;
+                
+                console.log("User department ID:", userDeptId);
+                console.log("User role:", userRole);
+                
+                if (userDeptId && userRole && userRole !== 'none') {
+                    const deptElementId = departmentMap[userDeptId];
+                    if (deptElementId && document.getElementById(deptElementId)) {
+                        console.log("Setting department", deptElementId, "to:", userRole);
+                        document.getElementById(deptElementId).textContent = userRole;
+                    }
+                }
+                
+                if (user.departments && Array.isArray(user.departments) && user.departments.length > 0) {
+                    console.log("Processing", user.departments.length, "departments");
+                    user.departments.forEach(dept => {
+                        console.log("Department:", dept);
+                        const deptElementId = departmentMap[dept.DepartmentID || dept.departmentId];
+                        if (deptElementId && document.getElementById(deptElementId)) {
+                            const roleText = dept.Role || dept.role || 'Manager';
+                            console.log("Setting department", deptElementId, "to:", roleText);
+                            document.getElementById(deptElementId).textContent = roleText;
+                        }
+                    });
+                }
+                
+                const nonMemberMessage = document.getElementById('nonMemberMessage');
+                if (nonMemberMessage) {
+                    const role = user.role || user.Role || 'none';
+                    nonMemberMessage.style.display = role === 'none' ? 'block' : 'none';
+                }
+
+                const myDepartmentsBlock = document.getElementById('myDepartmentsBlock');
+                if (myDepartmentsBlock) {
+                    const role = (user.role || user.Role || '').toLowerCase();
+                    if (role === 'president' || role === 'vice president') {
+                        myDepartmentsBlock.style.display = 'none';
+                    } else {
+                        myDepartmentsBlock.style.display = 'block';
+                    }
+                }
+            } else {
+                console.error("No user object found in loadProfileData!");
+            }
+            console.log("========== LOAD PROFILE DATA END ==========");
+        }
+
+        function id(elementId) {
+            return document.getElementById(elementId);
+        }
+
+        async function displayInbox() {
+            const container = document.getElementById('notifContainer');
+            const notificationSection = document.getElementById('notification-section');
+            
+            if (notificationSection.classList.contains('hidden')) {
+                notificationSection.classList.remove('hidden');
+            }
+            
+            try {
+                const response = await fetch(`/api/admin/notifications/${user.id}`);
+                const data = await response.json();
+                
+                if (data.success && data.notifications && data.notifications.length > 0) {
+
+                    const systemNotifications = data.notifications.filter(notif => 
+                        notif.Type_notification === 'Reply to Request' || 
+                        notif.Type_notification === 'New Post' ||
+                        notif.Type_notification === 'Role Assignment' ||
+                        notif.Type_notification === 'Department Removal' ||
+                        notif.Type_notification === 'Role Modification'
+                    );
+
+                    const replies = systemNotifications.filter(notif => notif.Type_notification === 'Reply to Request');
+                    const posts = systemNotifications.filter(notif => notif.Type_notification === 'New Post');
+
+                    const roleNotifs = systemNotifications.filter(notif => 
+                        notif.Type_notification === 'Role Assignment' || 
+                        notif.Type_notification === 'Department Removal' || 
+                        notif.Type_notification === 'Role Modification'
+                    );
+
+                    if (systemNotifications.length === 0) {
+                        container.innerHTML = `
+                            <div class="glass-card p-10 text-center">
+                                <i class="fa-regular fa-envelope-open text-4xl text-gray-500 mb-3 block"></i>
+                                <p class="text-gray-400 text-sm">No notifications yet.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    container.innerHTML = '';
+
+                    roleNotifs.forEach((notif) => {
+                        const notifId = notif.NotificationID;
+                        const isUnread = notif.Status_notification === 'Unread';
+                        const timestamp = new Date(notif.Time);
+                        const formattedDate = timestamp.toLocaleDateString();
+                        const formattedTime = timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        let statusColor = isUnread ? '#ffff00' : '#4ecb71';
+                        let statusText = isUnread ? 'UNREAD' : 'SEEN';
+                        
+                        let icon = 'fa-solid fa-user-tag';
+                        let iconColor = 'var(--accent)';
+                        
+                        if (notif.Type_notification === 'Department Removal') {
+                            icon = 'fa-solid fa-user-minus';
+                            iconColor = '#ff4444';
+                        } else if (notif.Type_notification === 'Role Assignment') {
+                            icon = 'fa-solid fa-user-plus';
+                            iconColor = '#4ecb71';
+                        } else if (notif.Type_notification === 'Role Modification') {
+                            icon = 'fa-solid fa-user-pen';
+                            iconColor = '#ffa500';
+                        }
+                        
+                        const card = document.createElement('div');
+                        card.className = 'notif-card';
+                        card.style = `
+                            background: #09192b;
+                            border-left: 4px solid ${statusColor};
+                            padding: 12px;
+                            margin-bottom: 10px;
+                            border-radius: 4px;
+                            text-align: left;
+                        `;
+                        
+                        card.innerHTML = `
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px;">
+                                <span style="color: white; font-weight: bold;">
+                                    <i class="${icon}" style="color: ${iconColor}; margin-right: 8px;"></i>
+                                    ${notif.Type_notification}
+                                </span>
+                                <span style="color: ${statusColor}; font-size: 11px; font-weight: bold;">${statusText}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px;">
+                                <div style="flex-grow: 1;">
+                                    <p style="color: #94a3b8; font-size: 10px; margin: 0 0 4px 0;">
+                                        📅 Received: ${formattedDate} at ${formattedTime}
+                                    </p>
+                                    <p style="color: #94a3b8; font-size: 12px; line-height: 1.4; margin: 0; white-space: pre-line;">
+                                        ${escapeHtml(notif.Details_notification)}
+                                    </p>
+                                </div>
+                                ${isUnread ? `
+                                    <div style="flex-shrink: 0;">
+                                        <button class="btn-check" 
+                                                style="background: rgba(78, 203, 113, 0.1); color: #4ecb71; padding: 5px 10px; border-radius: 20px; cursor: pointer;" 
+                                                onclick="markPostAsRead(this, ${notifId})">
+                                            ✔️
+                                        </button>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
+                        container.appendChild(card);
+                    });
+                    
+                    posts.forEach((notif) => {
+                        const notifId = notif.NotificationID;
+                        const isUnread = notif.Status_notification === 'Unread';
+                        const timestamp = new Date(notif.Time);
+                        const formattedDate = timestamp.toLocaleDateString();
+                        const formattedTime = timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        
+                        let statusColor = isUnread ? '#ffff00' : '#4ecb71';
+                        let statusText = isUnread ? 'UNREAD' : 'SEEN';
+                        
+                        const card = document.createElement('div');
+                        card.className = 'notif-card';
+                        card.style = `
+                            background: #09192b;
+                            border-left: 4px solid ${statusColor};
+                            padding: 12px;
+                            margin-bottom: 10px;
+                            border-radius: 4px;
+                            text-align: left;
+                        `;
+
+                        card.innerHTML = `
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px;">
+                                <span style="color: white; font-weight: bold;">
+                                    <i class="fa-solid fa-newspaper" style="color: var(--accent); margin-right: 8px;"></i>
+                                    New Post from ${escapeHtml(notif.Sender)}
+                                </span>
+                                <span style="color: ${statusColor}; font-size: 11px; font-weight: bold;">${statusText}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px;">
+                                <div style="flex-grow: 1;">
+                                    <p style="color: #94a3b8; font-size: 10px; margin: 0 0 4px 0;">
+                                        📅 Received: ${formattedDate} at ${formattedTime}
+                                    </p>
+                                    <p style="color: #94a3b8; font-size: 12px; line-height: 1.4; margin: 0; white-space: pre-line;">
+                                        ${escapeHtml(notif.Details_notification)}
+                                    </p>
+                                </div>
+                                ${isUnread ? `
+                                    <div style="flex-shrink: 0;">
+                                        <button class="btn-check" 
+                                                style="background: rgba(78, 203, 113, 0.1); color: #4ecb71; padding: 5px 10px; border-radius: 20px; cursor: pointer;" 
+                                                onclick="markPostAsRead(this, ${notifId})">
+                                            ✔️
+                                        </button>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
+                        container.appendChild(card);
+                    });
+                    
+                    replies.forEach((notif) => {
+                        const notifId = notif.NotificationID;
+                        const isUnread = notif.Status_notification === 'Unread';
+                        
+                        const timestamp = new Date(notif.Time);
+                        const formattedDate = timestamp.toLocaleDateString();
+                        const formattedTime = timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        const formattedDetails = notif.Details_notification.replace(/<br>/g, '\n');
+                        
+                        let statusColor = isUnread ? '#ffff00' : '#4ecb71';
+                        let statusText = isUnread ? 'UNREAD' : 'SEEN';
+                        
+                        const card = document.createElement('div');
+                        card.className = 'notif-card';
+                        card.style = `
+                            background: #09192b;
+                            border-left: 4px solid ${statusColor};
+                            padding: 12px;
+                            margin-bottom: 10px;
+                            border-radius: 4px;
+                            text-align: left;
+                        `;
+                        
+                        card.innerHTML = `
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px;">
+                                <span style="color: white; font-weight: bold;">Reply from: ${escapeHtml(notif.Sender)}</span>
+                                <span style="color: ${statusColor}; font-size: 11px; font-weight: bold;">${statusText}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px;">
+                                <div style="flex-grow: 1;">
+                                    <p style="color: #94a3b8; font-size: 10px; margin: 0 0 4px 0;">
+                                        📅 Received: ${formattedDate} at ${formattedTime}
+                                    </p>
+                                    <p style="color: #94a3b8; font-size: 12px; line-height: 1.4; margin: 0; white-space: pre-line;">
+                                        ${escapeHtml(formattedDetails)}
+                                    </p>
+                                </div>
+                                ${isUnread ? `
+                                    <div style="flex-shrink: 0;">
+                                        <button class="btn-check" 
+                                                style="background: rgba(78, 203, 113, 0.1); color: #4ecb71; padding: 5px 10px; border-radius: 20px; cursor: pointer;" 
+                                                onclick="deleteRequest(this, ${notifId})">
+                                            ✔️ 
+                                        </button>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
+                        
+                        container.appendChild(card);
+                    });
+                } else {
+                    container.innerHTML = `
+                        <div class="glass-card p-10 text-center">
+                            <i class="fa-regular fa-envelope-open text-4xl text-gray-500 mb-3 block"></i>
+                            <p class="text-gray-400 text-sm">No notifications yet.</p>
+                            <p class="text-gray-500 text-xs mt-1">When someone replies to your request or creates a post, it will appear here.</p>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                console.error("ERROR in displayInbox:", err);
+                container.innerHTML = `
+                    <div class="glass-card p-10 text-center">
+                        <i class="fa-solid fa-circle-exclamation text-4xl text-red-500 mb-3 block"></i>
+                        <p class="text-gray-400 text-sm">Error loading notifications.</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function markPostAsRead(btn, notifId) {
+            const card = btn.closest('.notif-card');
+            try {
+                const response = await fetch(`/api/admin/notifications/mark-seen/${notifId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    if (card) {
+                        card.style.borderLeft = "4px solid #4ecb71";
+                        const statusSpan = card.querySelector('span[style*="font-size: 11px"]');
+                        if (statusSpan) {
+                            statusSpan.textContent = 'SEEN';
+                            statusSpan.style.color = '#4ecb71';
+                        }
+                        btn.style.display = 'none';
+                    }
+                    console.log(`✅ Post notification ${notifId} marked as read`);
+                }
+            } catch (err) {
+                console.error("❌ Failed:", err);
+            }
+        }
+
+        async function displayRequests() {
+            const container = document.getElementById('notif-card');
+            
+            try {
+                const response = await fetch(`/api/admin/notifications/${user.id}`);
+                const data = await response.json();
+
+                if (data.success && data.notifications && data.notifications.length > 0) {
+                    const requests = data.notifications.filter(notif => 
+                        notif.Type_notification !== 'Reply to Request' && 
+                        notif.Type_notification !== 'New Post' &&
+                        notif.Type_notification !== 'Role Assignment' &&
+                        notif.Type_notification !== 'Department Removal' &&
+                        notif.Type_notification !== 'Role Modification'
+                    );
+                    
+                    if (requests.length > 0) {
+                        container.innerHTML = '';
+                        
+                        requests.forEach((notif) => {
+                            const notifId = notif.NotificationID;
+                            const senderName = notif.Sender;
+                            const notifType = notif.Type_notification;
+                            const isUnread = notif.Status_notification === 'Unread';
+                            
+                            const timestamp = new Date(notif.Time);
+                            const formattedDate = timestamp.toLocaleDateString();
+                            const formattedTime = timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                            const formattedDetails = notif.Details_notification.replace(/<br>/g, '\n');
+                            
+                            let statusColor = '#ffff00';
+                            let statusText = 'UNREAD';
+                            if (notif.Status_notification === 'Replied') {
+                                statusColor = '#4ecb71';
+                                statusText = 'REPLIED';
+                            }
+                            if (notif.Status_notification === 'Seen') {
+                                statusColor = '#ffa500';
+                                statusText = 'SEEN';
+                            }
+                            
+                            const card = document.createElement('div');
+                            card.className = 'notif-card';
+                            card.style = `
+                                background: #09192b;
+                                border-left: 4px solid ${statusColor};
+                                padding: 12px;
+                                margin-bottom: 10px;
+                                border-radius: 4px;
+                                text-align: left;
+                            `;
+                            
+                            card.innerHTML = `
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 8px;">
+                                    <span style="color: white; font-weight: bold;">${escapeHtml(notifType)}</span>
+                                    <div style="display: flex; gap: 8px;">
+                                        <span style="color: ${statusColor}; font-size: 11px; font-weight: bold;">${statusText}</span>
+                                        ${isUnread ? `<button class="btn-check" style="background: rgba(78, 203, 113, 0.1); color: #4ecb71; padding: 5px 10px; border-radius: 20px; cursor: pointer;" onclick="markAsSeen(this, ${notifId})">✔️</button>` : ''}
+                                    </div>
+                                </div>
+                                <div>
+                                    <p style="color: #94a3b8; font-size: 10px; margin: 0 0 4px 0;">
+                                        📅 Received: ${formattedDate} at ${formattedTime}
+                                    </p>
+                                    <p style="color: #94a3b8; font-size: 12px; line-height: 1.4; margin: 0 0 10px 0; white-space: pre-line;">
+                                        ${escapeHtml(formattedDetails)}
+                                    </p>
+                                    <button class="px-3 py-1 bg-blue-500/10 text-blue-500 border border-blue-500/20 rounded-md text-xs font-bold hover:bg-blue-500 hover:text-white transition" style="margin-top: 10px" onclick="openReplyPanel(${notifId}, '${escapeHtml(senderName)}', '${escapeHtml(notifType)}')">Reply</button>
+                                </div>
+                            `;
+                            
+                            container.appendChild(card);
+                        });
+                    } else {
+                        container.innerHTML = `
+                            <div class="glass-card p-10 text-center">
+                                <i class="fa-regular fa-folder-open text-4xl text-gray-500 mb-3 block"></i>
+                                <p class="text-gray-400 text-sm">No requests yet.</p>
+                                <p class="text-gray-500 text-xs mt-1">When someone sends you a request, it will appear here.</p>
+                            </div>
+                        `;
+                    }
+                } else {
+                    container.innerHTML = `
+                        <div class="glass-card p-10 text-center">
+                            <i class="fa-regular fa-folder-open text-4xl text-gray-500 mb-3 block"></i>
+                            <p class="text-gray-400 text-sm">No requests yet.</p>
+                            <p class="text-gray-500 text-xs mt-1">When someone sends you a request, it will appear here.</p>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                console.error("ERROR in displayRequests:", err);
+                container.innerHTML = `
+                    <div class="glass-card p-10 text-center">
+                        <i class="fa-solid fa-circle-exclamation text-4xl text-red-500 mb-3 block"></i>
+                        <p class="text-gray-400 text-sm">Error loading requests.</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function checkNewNotifications() {
+            try {
+                const response = await fetch(`/api/admin/notifications/${user.id}`);
+                const data = await response.json();
+                
+                if (data.success && data.notifications) {
+                    const unreadNotifs = data.notifications.filter(
+                        notif => (notif.Type_notification === 'Reply to Request' || 
+                                notif.Type_notification === 'New Post' ||
+                                notif.Type_notification === 'Role Assignment' ||
+                                notif.Type_notification === 'Department Removal' ||
+                                notif.Type_notification === 'Role Modification') && 
+                                notif.Status_notification === 'Unread'
+                    );
+                    
+                    const badge = document.getElementById('notifBadge');
+                    if (badge) {
+                        if (unreadNotifs.length > 0) {
+                            badge.style.display = 'inline';
+                            badge.title = `${unreadNotifs.length} new notification${unreadNotifs.length > 1 ? 's' : ''}`;
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("Error checking notifications:", err);
+            }
+        }
+
+        async function checkNewRequests() {
+            try {
+                const response = await fetch(`/api/admin/notifications/${user.id}`);
+                const data = await response.json();
+                
+                if (data.success && data.notifications) {
+                    const unreadRequests = data.notifications.filter(
+                        notif => notif.Type_notification !== 'Reply to Request' && 
+                                notif.Type_notification !== 'New Post' &&
+                                notif.Type_notification !== 'Role Assignment' &&
+                                notif.Type_notification !== 'Department Removal' &&
+                                notif.Type_notification !== 'Role Modification' && 
+                                notif.Status_notification === 'Unread'
+                    );
+                    
+                    const badge = document.getElementById('requestsBadge');
+                    if (badge) {
+                        if (unreadRequests.length > 0) {
+                            badge.style.display = 'inline';
+                            badge.title = `${unreadRequests.length} new request${unreadRequests.length > 1 ? 's' : ''}`;
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("Error checking requests:", err);
+            }
+        }
+        async function clearAll() {
+            if (confirm("⚠️ Clear ALL notifications? This action cannot be undone.")) {
+                try {
+                    const response = await fetch(`/api/admin/notifications/${user.id}`);
+                    const data = await response.json();
+                    
+                    if (data.success && data.notifications && data.notifications.length > 0) {
+                        const allNotifs = data.notifications.filter(
+                            notif => notif.Type_notification === 'Reply to Request' || 
+                                    notif.Type_notification === 'New Post' ||
+                                    notif.Type_notification === 'Role Assignment' ||
+                                    notif.Type_notification === 'Department Removal' ||
+                                    notif.Type_notification === 'Role Modification'
+                        );
+                        
+                        if (allNotifs.length === 0) {
+                            alert('No notifications to clear.');
+                            return;
+                        }
+                        
+                        for (const notif of allNotifs) {
+                            await fetch(`/api/hide-request/${notif.NotificationID}?userId=${user.id}`, {
+                                method: 'DELETE',
+                            });
+                        }
+                        
+                        await displayInbox();
+                        await checkNewNotifications();
+                        
+                        alert(`✅ Cleared ${allNotifs.length} notification${allNotifs.length === 1 ? '' : 's'}.`);
+                    } else {
+                        alert('No notifications to clear.');
+                    }
+                } catch (error) {
+                    console.error('Error clearing notifications:', error);
+                    alert('Error clearing notifications');
+                }
+            }
+        }
+
+        async function markAsSeen(btn, notifId) {
+            const card = btn.closest('.notif-card'); 
+            try {
+                const response = await fetch(`/api/admin/notifications/mark-seen/${notifId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    if (card) {
+                        card.style.borderLeft = "4px solid #FFA500";
+                        const statusSpan = card.querySelector('span[style*="font-size: 11px"]');
+                        if (statusSpan) {
+                            statusSpan.textContent = 'SEEN';
+                            statusSpan.style.color = '#FFA500';
+                        }
+                        btn.style.display = 'none';
+                    }
+                    console.log(`✅ Notification ${notifId} marked as seen`);
+                }
+            } catch (err) {
+                console.error("❌ Failed:", err);
+            }
+        }
+
+        async function deleteRequest(btn, notifId) {
+            console.log("🔵 MARK AS READ called for notification:", notifId);
+            const card = btn.closest('.notif-card'); 
+            try {
+                const response = await fetch(`/api/admin/notifications/mark-seen/${notifId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    if (card) {
+                        card.style.borderLeft = "4px solid #4ecb71";
+                        const statusSpan = card.querySelector('span[style*="font-size: 11px"]');
+                        if (statusSpan) {
+                            statusSpan.textContent = 'SEEN';
+                            statusSpan.style.color = '#4ecb71';
+                        }
+                        btn.style.display = 'none';
+                    }
+                    console.log(`✅ Notification ${notifId} marked as seen`);
+                }
+            } catch (err) {
+                console.error("❌ Failed:", err);
+            }
+        }
+
+        async function clearRequests() {
+            if (confirm('⚠️ Clear ALL requests? This action cannot be undone.')) {
+                try {
+                    const response = await fetch(`/api/admin/notifications/${user.id}`);
+                    const data = await response.json();
+                    
+                    if (data.success && data.notifications && data.notifications.length > 0) {
+                        const requests = data.notifications.filter(notif => 
+                            notif.Type_notification !== 'Reply to Request' && 
+                            notif.Type_notification !== 'New Post' &&
+                            notif.Type_notification !== 'Role Assignment' &&
+                            notif.Type_notification !== 'Department Removal' &&
+                            notif.Type_notification !== 'Role Modification'
+                        );
+                        
+                        if (requests.length === 0) {
+                            alert('No requests to clear.');
+                            return;
+                        }
+                        
+                        for (const notif of requests) {
+                            await fetch(`/api/hide-request/${notif.NotificationID}?userId=${user.id}`, {
+                                method: 'DELETE',
+                            });
+                        }
+                        
+                        await displayRequests();
+                        await checkNewRequests();
+                        
+                        alert(`✅ Cleared ${requests.length} request${requests.length === 1 ? '' : 's'}.`);
+                    } else {
+                        alert('No requests to clear.');
+                    }
+                } catch (error) {
+                    console.error('Error clearing requests:', error);
+                    alert('Error clearing requests');
+                }
+            }
+        }
+
+        function openReplyPanel(notifId, sender, notifType) {
+            const cleanType = notifType.split('?')[0];
+            const encodedSender = encodeURIComponent(sender);
+            const encodedType = encodeURIComponent(notifType);
+            
+            const url = `replyRequest.html?notifId=${notifId}&sender=${encodedSender}&type=${encodedType}`;
+            window.open(url, '_blank');
+        }
+
+        function updateDropdownsBasedOnRole(role) {
+            if (!departmentContainer || !subdepartmentContainer) return;
+            
+            departmentContainer.classList.add('hidden');
+            subdepartmentContainer.classList.add('hidden');
+            
+            if (department) department.required = false;
+            if (subdepartment) subdepartment.required = false;
+            
+            if (role === 'manager') {
+                departmentContainer.classList.remove('hidden');
+                if (department) department.required = true;
+            } else if (role === 'instructor') {
+                departmentContainer.classList.remove('hidden');
+                if (department) department.required = true;
+            } else {
+                departmentContainer.classList.remove('hidden');
+                if (department) department.required = true;
+            }
+        }
+
+        function updateSubdepartments() {
+    console.log("🔵 updateSubdepartments called");
+    console.log("  - department value:", department?.value);
+    console.log("  - currentUserRole:", currentUserRole);
+    console.log("  - role === 'instructor'?", currentUserRole === 'instructor');
+    
+    if (!department || !subdepartmentContainer || !subdepartment) {
+        console.log("  - Missing elements:", {
+            department: !!department,
+            subdepartmentContainer: !!subdepartmentContainer,
+            subdepartment: !!subdepartment
+        });
+        return;
+    }
+    
+    const selectedDepartment = department.value;
+    const role = currentUserRole;
+
+    if (role === 'instructor' && selectedDepartment) {
+        console.log("  ✅ Showing sub-department dropdown");
+        subdepartmentContainer.classList.remove('hidden');
+        subdepartment.required = true;
+        
+        let subdepartments = [];
+        if (selectedDepartment === 'Scientific Department') {
+            subdepartments = [
+                'Training and Education Sub-department',
+                'Research Sub-department',
+                'Workshops Sub-department'
+            ];
+        } else if (selectedDepartment === 'Events and Communication Department') {
+            subdepartments = [
+                'Events Sub-department',
+                'Media and Communication Sub-department'
+            ];
+        } else if (selectedDepartment === 'Administration and Logistics  Department') {
+            subdepartments = [
+                'Administration Sub-department',
+                'Partnership and Sponsorship Sub-department',
+                'Logistics and Equipment Sub-department'
+            ];
+        }
+        
+        subdepartment.innerHTML = '<option value="" disabled selected>Select sub-department</option>';
+        subdepartments.forEach(sub => {
+            const option = document.createElement('option');
+            option.value = sub;
+            option.textContent = sub;
+            subdepartment.appendChild(option);
+        });
+    } else {
+        console.log("  ❌ NOT showing sub-department dropdown");
+        console.log("    - Condition failed:", {
+            roleMatches: role === 'instructor',
+            departmentSelected: !!selectedDepartment
+        });
+        subdepartmentContainer.classList.add('hidden');
+        subdepartment.required = false;
+    }
+}
+
+        function countWords(text) {
+            if (!text) return 0;
+            return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+        }
+
+        function updatePostWordCount() {
+            const textarea = document.getElementById('postDescription');
+            const wordCountSpan = document.getElementById('postWordCount');
+            const submitBtn = document.querySelector('#postForm .submit');
+            if (!textarea || !wordCountSpan) return;
+            const wordCount = countWords(textarea.value);
+            wordCountSpan.textContent = `${wordCount} / 20 words minimum`;
+            if (wordCount >= 20) {
+                wordCountSpan.className = 'word-count valid';
+                if (submitBtn) submitBtn.disabled = false;
+            } else {
+                wordCountSpan.className = 'word-count invalid';
+                if (submitBtn) submitBtn.disabled = true;
+            }
+        }
+
+        function validateEventDate() {
+            const eventDateInput = document.getElementById('postEventDate');
+            const errorDiv = document.getElementById('postDateError');
+            
+            const selectedDate = eventDateInput.value;
+            if (!selectedDate) return;
+            
+            const today = new Date().toISOString().split('T')[0];
+            
+            if (selectedDate < today) {
+                if (errorDiv) {
+                    errorDiv.style.display = 'block';
+                    errorDiv.style.color = '#ff4444';
+                    errorDiv.innerHTML = '❌ Event date must be in the future';
+                }
+            } else {
+                if (errorDiv) {
+                    errorDiv.style.display = 'none';
+                }
+            }
+        }
+
+        async function submitPost(event) {
+            event.preventDefault();
+            
+            const postType = document.querySelector('input[name="postType"]:checked').value;
+            const title = document.getElementById('postTitle').value;
+            const description = document.getElementById('postDescription').value;
+            const departmentValue = document.getElementById('department').value;
+            const subdepartmentValue = document.getElementById('subdepartment').value;
+            const eventDate = document.getElementById('postEventDate').value;
+            const eventTime = document.getElementById('postEventTime').value;
+            const imageFile = document.getElementById('postImage').files[0];
+            
+            const successDiv = document.getElementById('postSuccessMessage');
+            const errorDiv = document.getElementById('postDateError');
+            if (successDiv) successDiv.style.display = 'none';
+            if (errorDiv) errorDiv.style.display = 'none';
+            
+            if (!title || title.length < 5) {
+                alert('Title must be at least 5 characters');
+                return;
+            }
+            
+            if (!description || countWords(description) < 20) {
+                alert('Description must be at least 20 words');
+                return;
+            }
+            
+            if (eventDate) {
+                const today = new Date().toISOString().split('T')[0];
+                if (eventDate < today) {
+                    if (errorDiv) {
+                        errorDiv.style.display = 'block';
+                        errorDiv.style.color = '#ff4444';
+                        errorDiv.innerHTML = '❌ Event date must be in the future';
+                    }
+                    return;
+                }
+            }
+
+            const formData = new FormData();
+            formData.append('department', departmentValue);
+            formData.append('subdepartment', subdepartmentValue);
+            formData.append('postType', postType);
+            formData.append('title', title);
+            formData.append('description', description);
+            formData.append('eventDate', eventDate);
+            formData.append('eventTime', eventTime);
+            formData.append('poster', user.id);
+            if (imageFile) {
+                formData.append('image', imageFile);
+            }
+            
+            try {
+                const response = await fetch('/api/submit-post', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    if (successDiv) {
+                        successDiv.style.display = 'block';
+                        setTimeout(() => {
+                            successDiv.style.display = 'none';
+                        }, 3000);
+                    }
+                    
+                    document.getElementById('postTitle').value = '';
+                    document.getElementById('postDescription').value = '';
+                    document.getElementById('department').value='' ;
+                    document.getElementById('department').value = '';
+                    document.getElementById('subdepartment').value = '';
+                    document.getElementById('postEventDate').value = '';
+                    document.getElementById('postEventTime').value = '';
+                    document.getElementById('postImage').value = '';
+                    
+                    updatePostWordCount();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error publishing post:', error);
+                alert('Failed to publish post');
+            }
+        }
+
+        let currentDepartmentData = [];
+        let currentSearchTerm = '';
+        let selectedUserForAdd = null;
+        let selectedUserForModify = null;
+
+        async function loadDepartmentData() {
+            try {
+                const response = await fetch(`/api/department/members/${user.id}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentDepartmentData = data.members;
+                    
+                    const members = currentDepartmentData.filter(m => m.Role === 'member');
+                    const instructors = currentDepartmentData.filter(m => m.Role === 'instructor');
+                    document.getElementById('totalMembers').textContent = members.length;
+                    document.getElementById('totalInstructors').textContent = instructors.length;
+                    
+                    const subDepts = [...new Set(currentDepartmentData.map(m => m.Sub_department))];
+                    document.getElementById('totalSubDepts').textContent = subDepts.length;
+                    
+                    if (currentDepartmentData.length > 0) {
+                        document.getElementById('departmentName').textContent = 'Department Members';
+                    }
+                    
+                    renderDepartmentTable(currentDepartmentData);
+                } else {
+                    document.getElementById('departmentTableBody').innerHTML = `
+                        <tr><td colspan="7" class="text-center text-red-400">Failed to load data</td></tr>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading department:', error);
+                document.getElementById('departmentTableBody').innerHTML = `
+                    <tr><td colspan="7" class="text-center text-red-400">Error loading data</td></tr>
+                `;
+            }
+        }
+
+        function renderDepartmentTable(data) {
+            const tbody = document.getElementById('departmentTableBody');
+            
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center text-gray-400">No members found</td></tr>`;
+                return;
+            }
+            
+            tbody.innerHTML = data.map(member => `
+                <tr>
+                    <td>${escapeHtml(member.Username)}</td>
+                    <td>${member.UserID}</td>
+                    <td>${escapeHtml(member.Level || 'N/A')}</td>
+                    <td>${escapeHtml(member.Faculty || 'N/A')}</td>
+                    <td>${escapeHtml(member.Sub_department)}</td>
+                    <td><span class="px-2 py-1 rounded text-xs ${member.Role === 'Instructor' ? 'bg-purple-500/20 text-purple-300' : 'bg-green-500/20 text-green-300'}">${member.Role}</span></td>
+                    <td>
+                        <button onclick="openModifyModal('${member.UserID}', '${escapeHtml(member.Username)}', '${member.Role}', '${escapeHtml(member.Sub_department)}')" class="text-blue-400 hover:text-blue-300 mr-2">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button onclick="removeMember('${member.UserID}', '${member.Role}')" class="text-red-400 hover:text-red-300">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function searchMember() {
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            currentSearchTerm = searchTerm;
+            
+            if (searchTerm === '') {
+                renderDepartmentTable(currentDepartmentData);
+            } else {
+                const filtered = currentDepartmentData.filter(m => 
+                    m.Username.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                    m.UserID.toString().includes(searchTerm)
+                );
+                renderDepartmentTable(filtered);
+            }
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            currentSearchTerm = '';
+            renderDepartmentTable(currentDepartmentData);
+        }
+
+        async function loadSubDepartments() {
+            try {
+                const response = await fetch(`/api/department/subdepartments/${user.id}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const options = data.subDepartments.map(sd => 
+                        `<option value="${escapeHtml(sd.Sub_department_name)}">${escapeHtml(sd.Sub_department_name)}</option>`
+                    ).join('');
+                    
+                    document.getElementById('memberSubDept').innerHTML = '<option value="">Select sub-department</option>' + options;
+                    document.getElementById('modifySubDept').innerHTML = '<option value="">Select sub-department</option>' + options;
+                }
+            } catch (error) {
+                console.error('Error loading sub-departments:', error);
+            }
+        }
+
+        async function openAddModal() {
+            document.getElementById('modalTitle').textContent = 'Add Member/Instructor';
+            
+            document.getElementById('directUserId').value = '';
+            document.getElementById('directUsername').value = '';
+            document.getElementById('directFaculty').value = '';
+            document.getElementById('directLevel').value = '';
+            document.getElementById('memberRole').value = 'member';
+            
+            await loadSubDepartments();
+            document.getElementById('memberModal').classList.remove('hidden');
+        }
+
+        async function searchUserToAdd() {
+            const searchTerm = document.getElementById('searchUserId').value.trim();
+            
+            if (!searchTerm) {
+                alert('Please enter a Username or Student ID');
+                return;
+            }
+            
+            const searchBtn = event.target;
+            const originalText = searchBtn.textContent;
+            searchBtn.textContent = 'Searching...';
+            searchBtn.disabled = true;
+            
+            try {
+                const encodedTerm = encodeURIComponent(searchTerm);
+                const response = await fetch(`/api/department/search-user/${encodedTerm}`);
+                const data = await response.json();
+                
+                if (data.success && data.user) {
+                    selectedUserForAdd = {
+                        UserID: data.user.UserID,
+                        Username: data.user.Username,
+                        Level: data.user.Level || 'N/A',
+                        Faculty: data.user.Faculty || 'N/A'
+                    };
+                    console.log("User found:", selectedUserForAdd);
+                    
+                    document.getElementById('displayUsername').textContent = selectedUserForAdd.Username;
+                    document.getElementById('displayLevel').textContent = selectedUserForAdd.Level;
+                    document.getElementById('displayFaculty').textContent = selectedUserForAdd.Faculty;
+                    document.getElementById('userInfoSection').classList.remove('hidden');
+                    document.getElementById('formFields').classList.remove('hidden');
+                    document.getElementById('searchSection').style.display = 'none';
+                } else {
+                    alert('User not found. Please check the Username or Student ID.');
+                    selectedUserForAdd = null;
+                }
+            } catch (error) {
+                console.error('Error searching user:', error);
+                alert('Error searching user');
+                selectedUserForAdd = null;
+            } finally {
+                searchBtn.textContent = originalText;
+                searchBtn.disabled = false;
+            }
+        }
+
+        async function confirmDirectAdd() {
+            console.log("========== CONFIRM DIRECT ADD START ==========");
+            
+            const userId = document.getElementById('directUserId').value.trim();
+            const username = document.getElementById('directUsername').value.trim(); 
+            const faculty = document.getElementById('directFaculty').value.trim();
+            const level = document.getElementById('directLevel').value.trim();
+            const role = document.getElementById('memberRole').value;
+            const subDepartment = document.getElementById('memberSubDept').value;
+            
+            if (!userId) {
+                alert('Please enter Student ID');
+                return;
+            }
+            
+            if (!username) {
+                alert('Please enter Username');
+                return;
+            }
+            
+            if (!subDepartment) {
+                alert('Please select a sub-department');
+                return;
+            }
+            
+            let formattedUsername = username;
+            if (!formattedUsername.startsWith('@')) {
+                formattedUsername = '@' + formattedUsername;
+            }
+            
+            let finalEmail = `${userId}@temp.com`;
+            
+            let finalFaculty = faculty;
+            if (!finalFaculty) {
+                finalFaculty = 'Not specified';
+            }
+            
+            let finalLevel = level;
+            if (!finalLevel) {
+                finalLevel = 'Not specified';
+            }
+            
+            try {
+                const response = await fetch('/api/department/add-member-direct', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        managerId: user.id,
+                        userId: userId,
+                        username: formattedUsername,
+                        faculty: finalFaculty,
+                        level: finalLevel,
+                        role: role,
+                        subDepartmentName: subDepartment
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`✅ ${role} added successfully!`);
+                    closeModal();
+                    await loadDepartmentData();
+                    
+                    if (userId == user.id) {
+                        await refreshUserData();
+                    }
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error adding member:', error);
+                alert('Failed to add member: ' + error.message);
+            }
+        }
+
+        async function removeMember(userId, role) {
+            if (confirm(`⚠️ Are you sure you want to remove this ${role}? This action cannot be undone.`)) {
+                
+                const removedUserId = userId;
+                
+                try {
+                    const response = await fetch('/api/department/remove-member', {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            managerId: user.id,
+                            userId: userId,
+                            role: role
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        alert(`✅ ${role} has been removed from the department`);
+                        await loadDepartmentData();
+                        
+                        if (removedUserId == user.id) {
+                            await refreshUserData();
+                        }
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                } catch (error) {
+                    console.error('Error removing member:', error);
+                    alert('Failed to remove member');
+                }
+            }
+        }
+
+        async function openModifyModal(userId, username, currentRole, currentSubDept) {
+            selectedUserForModify = { userId, username, currentRole, currentSubDept };
+            
+            document.getElementById('modifyUsername').textContent = username;
+            document.getElementById('modifyUserId').textContent = userId;
+            document.getElementById('modifyRole').value = currentRole;
+            
+            await loadSubDepartments();
+            
+            const subDeptSelect = document.getElementById('modifySubDept');
+            for (let i = 0; i < subDeptSelect.options.length; i++) {
+                if (subDeptSelect.options[i].value === currentSubDept) {
+                    subDeptSelect.selectedIndex = i;
+                    break;
+                }
+            }
+            
+            document.getElementById('modifyModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('memberModal').classList.add('hidden');
+            document.getElementById('directUserId').value = '';
+            document.getElementById('directUsername').value = '';
+            document.getElementById('directFaculty').value = '';
+            document.getElementById('directLevel').value = '';
+            document.getElementById('memberRole').value = 'member';
+            selectedUserForAdd = null;
+        }
+
+        function closeModifyModal() {
+            document.getElementById('modifyModal').classList.add('hidden');
+            selectedUserForModify = null;
+        }
+
+        let currentClubData = [];
+        let selectedUserForManager = null;
+        let selectedManagerForModify = null;
+
+        async function loadClubData() {
+            try {
+                const response = await fetch(`/api/club/members/${user.id}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentClubData = data.members;
+                    
+                    document.getElementById('clubTotalMembers').textContent = data.totalStudents;
+                    document.getElementById('clubTotalDepartments').textContent = data.totalDepartments;
+                    document.getElementById('clubTotalManagers').textContent = data.totalManagers || 0;
+                    
+                    renderClubTable(currentClubData);
+                } else {
+                    document.getElementById('clubTableBody').innerHTML = `
+                        <tr><td colspan="8" class="text-center text-red-400">Failed to load data</td></tr>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading club data:', error);
+                document.getElementById('clubTableBody').innerHTML = `
+                    <tr><td colspan="8" class="text-center text-red-400">Error loading data</td></tr>
+                `;
+            }
+        }
+
+        function renderClubTable(data) {
+    const tbody = document.getElementById('clubTableBody');
+    
+    if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-gray-400">No members found</td></tr>`;
+        return;
+    }
+    
+    tbody.innerHTML = data.map(member => {
+        let roleBadgeClass = '';
+        
+        if (member.ClubRole === 'President') {
+            roleBadgeClass = 'bg-red-500/20 text-red-300';
+        } else if (member.ClubRole === 'Vice President') {
+            roleBadgeClass = 'bg-orange-500/20 text-orange-300';
+        } else if (member.ClubRole === 'Manager') {
+            roleBadgeClass = 'bg-blue-500/20 text-blue-300';
+        } else if (member.ClubRole === 'Instructor') {
+            roleBadgeClass = 'bg-purple-500/20 text-purple-300';
+        } else if (member.ClubRole === 'Member') {
+            roleBadgeClass = 'bg-green-500/20 text-green-300';
+        } else {
+            roleBadgeClass = 'bg-gray-500/20 text-gray-300';
+        }
+        
+        let actionButtons = '';
+        
+        if (member.ClubRole === 'President' && member.UserID == user.id) {
+            actionButtons = `
+                <button onclick="openModifyPresidentModal()" class="text-blue-400 hover:text-blue-300" title="Modify President">
+                    <i class="fa-solid fa-pen"></i>
+                </button>
+            `;
+        } 
+        else if (member.ClubRole === 'Vice President') {
+            actionButtons = `
+                <button onclick="removeVicePresident('${member.UserID}')" class="text-red-400 hover:text-red-300" title="Remove VP">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            `;
+        }
+    
+        else if (member.ClubRole === 'Manager') {
+            actionButtons = `
+                <button onclick="openModifyManagerModal('${member.UserID}', '${escapeHtml(member.Username)}', '${escapeHtml(member.Department)}')" class="text-blue-400 hover:text-blue-300 mr-2" title="Modify Manager">
+                    <i class="fa-solid fa-pen"></i>
+                </button>
+                <button onclick="removeManager('${member.UserID}')" class="text-red-400 hover:text-red-300" title="Remove Manager">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            `;
+        } 
+        else {
+            actionButtons = `<span class="text-gray-500 text-xs">—</span>`;
+        }
+        
+        return `
+            <tr>
+                <td>${escapeHtml(member.Username)}</td>
+                <td>${member.UserID}</td>
+                <td>${escapeHtml(member.Level || 'N/A')}</td>
+                <td>${escapeHtml(member.Faculty || 'N/A')}</td>
+                <td>${escapeHtml(member.Department || 'N/A')}</td>
+                <td>${escapeHtml(member.Sub_department || 'N/A')}</td>
+                <td><span class="px-2 py-1 rounded text-xs ${roleBadgeClass}">${member.ClubRole}</span></td>
+                <td>${actionButtons}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function checkAccountStatus() {
+    const user = JSON.parse(localStorage.getItem('currentUser'));
+    if (user && (user.role === 'none' || user.Role === 'none')) {
+        
+        localStorage.removeItem('currentUser');
+        alert('Your account has been deactivated. Please contact the club leadership for more information.');
+        window.location.href = 'index.html';
+        return false;
+    }
+    return true;
+}
+
+async function removeVicePresident(userId) {
+    if (confirm('⚠️ Are you sure you want to remove the Vice President? Their account will be deactivated and they will not be able to log in.')) {
+        try {
+            const response = await fetch('/api/club/remove-vice-president', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ presidentId: user.id })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                alert('✅ Vice President has been removed. Account deactivated.');
+                await loadClubData();
+                await refreshUserData();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Error removing VP:', error);
+            alert('Failed to remove Vice President');
+        }
+    }
+}
+let selectedUserForVP = null;
+let currentVpId = null;
+
+async function openModifyVicePresidentModal(vpId, vpUsername) {
+    currentVpId = vpId;
+    document.getElementById('vpSearchSection').style.display = 'block';
+    document.getElementById('vpUserInfo').classList.add('hidden');
+    document.getElementById('vpSearchInput').value = '';
+    selectedUserForVP = null;
+    
+    document.getElementById('currentVpInfo').innerHTML = `
+        <div class="bg-yellow-500/10 p-3 rounded-lg mb-3">
+            <p class="text-sm"><span class="text-gray-400">Current VP:</span> <span class="text-white font-bold">${escapeHtml(vpUsername)}</span> (${vpId})</p>
+            <p class="text-xs text-yellow-400 mt-1">Select a new user to replace them</p>
+        </div>
+    `;
+    
+    document.getElementById('modifyVpModal').classList.remove('hidden');
+}
+
+async function searchUserForVP() {
+    const searchTerm = document.getElementById('vpSearchInput').value.trim();
+    
+    if (!searchTerm) {
+        alert('Please enter a Student ID or Username');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/club/search-user/${user.id}/${encodeURIComponent(searchTerm)}`);
+        const data = await response.json();
+        
+        if (data.success && data.users.length > 0) {
+            selectedUserForVP = data.users[0];
+            document.getElementById('vpUsername').textContent = selectedUserForVP.Username;
+            document.getElementById('vpUserId').textContent = selectedUserForVP.UserID;
+            
+            let roleText = selectedUserForVP.Role || 'none';
+            if (roleText === 'none') {
+                roleText = 'Deactivated Account';
+            } else if (roleText === 'member') {
+                roleText = 'Member';
+            } else if (roleText === 'instructor') {
+                roleText = 'Instructor';
+            } else if (roleText === 'manager') {
+                roleText = 'Manager';
+            } else if (roleText === 'president') {
+                roleText = 'President';
+            } else if (roleText === 'vice president') {
+                roleText = 'Vice President';
+            }
+            
+            const roleSpan = document.createElement('p');
+            roleSpan.className = 'text-sm';
+            roleSpan.innerHTML = `<span class="text-gray-400">Current Role:</span> <span class="text-white">${roleText}</span>`;
+            
+            const vpUserInfoDiv = document.getElementById('vpUserInfo');
+            vpUserInfoDiv.querySelector('.bg-cyan-500\\/10 p-3 rounded-lg mb-3').appendChild(roleSpan);
+            
+            document.getElementById('vpUserInfo').classList.remove('hidden');
+            document.getElementById('vpSearchSection').style.display = 'none';
+        } else {
+            alert('User not found');
+            selectedUserForVP = null;
+        }
+    } catch (error) {
+        console.error('Error searching user:', error);
+        alert('Error searching user');
+    }
+}
+async function confirmChangeVP() {
+    if (!selectedUserForVP) {
+        alert('Please search and select a user first');
+        return;
+    }
+    
+    if (confirm(`⚠️ Make ${selectedUserForVP.Username} the new Vice President? The current VP will become a regular member.`)) {
+        try {
+            const response = await fetch('/api/club/change-vice-president', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    presidentId: user.id,
+                    newVicePresidentId: selectedUserForVP.UserID
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                alert(`✅ ${selectedUserForVP.Username} is now Vice President!`);
+                closeModifyVpModal();
+                await loadClubData();
+                await refreshUserData();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Error changing VP:', error);
+            alert('Failed to change Vice President');
+        }
+    }
+}
+
+function closeModifyVpModal() {
+    document.getElementById('modifyVpModal').classList.add('hidden');
+    selectedUserForVP = null;
+    currentVpId = null;
+}
+        async function searchClubMembers() {
+            const searchTerm = document.getElementById('clubSearchInput').value.trim();
+            
+            if (searchTerm === '') {
+                renderClubTable(currentClubData);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/club/search/${user.id}/${encodeURIComponent(searchTerm)}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    renderClubTable(data.members);
+                }
+            } catch (error) {
+                console.error('Error searching:', error);
+                alert('Error searching members');
+            }
+        }
+
+        function clearClubSearch() {
+            document.getElementById('clubSearchInput').value = '';
+            renderClubTable(currentClubData);
+        }
+
+        async function loadDepartmentsForClub() {
+            try {
+                const response = await fetch(`/api/club/departments/${user.id}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const options = data.departments.map(dept => 
+                        `<option value="${dept.DepartmentID}">${escapeHtml(dept.Department_name)}</option>`
+                    ).join('');
+                    
+                    document.getElementById('managerDepartment').innerHTML = '<option value="">Select department</option>' + options;
+                    document.getElementById('modifyManagerDepartment').innerHTML = '<option value="">Select department</option>' + options;
+                }
+            } catch (error) {
+                console.error('Error loading departments:', error);
+            }
+        }
+
+        async function openAddManagerModal() {
+            document.getElementById('searchManagerSection').style.display = 'block';
+            document.getElementById('managerUserInfo').classList.add('hidden');
+            document.getElementById('managerFormFields').classList.add('hidden');
+            document.getElementById('searchManagerInput').value = '';
+            selectedUserForManager = null;
+            
+            await loadDepartmentsForClub();
+            document.getElementById('addManagerModal').classList.remove('hidden');
+        }
+
+        async function searchUserForManager() {
+            const searchTerm = document.getElementById('searchManagerInput').value.trim();
+            
+            if (!searchTerm) {
+                alert('Please enter a Student ID or Username');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/club/search-user/${user.id}/${encodeURIComponent(searchTerm)}`);
+                const data = await response.json();
+                
+                if (data.success && data.users.length > 0) {
+                    selectedUserForManager = data.users[0];
+                    document.getElementById('managerUsername').textContent = selectedUserForManager.Username;
+                    document.getElementById('managerUserId').textContent = selectedUserForManager.UserID;
+                    document.getElementById('managerLevel').textContent = selectedUserForManager.Level || 'N/A';
+                    document.getElementById('managerFaculty').textContent = selectedUserForManager.Faculty || 'N/A';
+                    document.getElementById('managerUserInfo').classList.remove('hidden');
+                    document.getElementById('managerFormFields').classList.remove('hidden');
+                    document.getElementById('searchManagerSection').style.display = 'none';
+                } else {
+                    alert('User not found');
+                    selectedUserForManager = null;
+                }
+            } catch (error) {
+                console.error('Error searching user:', error);
+                alert('Error searching user');
+            }
+        }
+
+        async function confirmAddManager() {
+            if (!selectedUserForManager) {
+                alert('Please search and select a user first');
+                return;
+            }
+            
+            const departmentId = document.getElementById('managerDepartment').value;
+            
+            if (!departmentId) {
+                alert('Please select a department');
+                return;
+            }
+            
+            const addedUserId = selectedUserForManager.UserID;
+            
+            try {
+                const response = await fetch('/api/club/add-manager', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        presidentId: user.id,
+                        userId: selectedUserForManager.UserID,
+                        departmentId: departmentId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`✅ ${selectedUserForManager.Username} is now a Manager!`);
+                    closeAddManagerModal();
+                    
+                    await loadClubData();
+                    
+                    
+                    if (addedUserId == user.id) {
+                        await refreshUserData();
+                    }
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error adding manager:', error);
+                alert('Failed to add manager');
+            }
+        }
+
+        async function removeManager(userId) {
+            if (confirm('⚠️ Are you sure you want to remove this Manager? This action cannot be undone.')) {
+                
+                const removedUserId = userId;
+                
+                try {
+                    const response = await fetch('/api/club/remove-manager', {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            presidentId: user.id,
+                            userId: userId
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        alert(`✅ Manager has been removed`);
+                        await loadClubData();
+                        
+                        
+                        if (removedUserId == user.id) {
+                            await refreshUserData();
+                        }
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                } catch (error) {
+                    console.error('Error removing manager:', error);
+                    alert('Failed to remove manager');
+                }
+            }
+        }
+
+        function promoteToManager(userId, username) {
+            if (confirm(`⚠️ Promote ${username} to Manager? They will be able to manage a department.`)) {
+                selectedUserForManager = { UserID: userId, Username: username };
+                
+                loadDepartmentsForClub().then(() => {
+                    document.getElementById('managerUsername').textContent = username;
+                    document.getElementById('managerUserId').textContent = userId;
+                    document.getElementById('managerUserInfo').classList.remove('hidden');
+                    document.getElementById('managerFormFields').classList.remove('hidden');
+                    document.getElementById('searchManagerSection').style.display = 'none';
+                    
+                    document.getElementById('addManagerModal').classList.remove('hidden');
+                });
+            }
+        }
+
+        async function openModifyManagerModal(userId, username, currentDepartment) {
+            selectedManagerForModify = { userId, username, currentDepartment };
+            
+            document.getElementById('modifyManagerUsername').textContent = username;
+            document.getElementById('modifyManagerUserId').textContent = userId;
+            
+            await loadDepartmentsForClub();
+            
+            const deptSelect = document.getElementById('modifyManagerDepartment');
+            for (let i = 0; i < deptSelect.options.length; i++) {
+                if (deptSelect.options[i].text === currentDepartment) {
+                    deptSelect.selectedIndex = i;
+                    break;
+                }
+            }
+            
+            document.getElementById('modifyManagerModal').classList.remove('hidden');
+        }
+
+        async function confirmModifyManager() {
+            const newDepartmentId = document.getElementById('modifyManagerDepartment').value;
+            const newDepartmentName = document.getElementById('modifyManagerDepartment').selectedOptions[0]?.text;
+            
+            if (!newDepartmentId) {
+                alert('Please select a department');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/club/modify-manager', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        presidentId: user.id,
+                        userId: selectedManagerForModify.userId,
+                        newDepartmentId: newDepartmentId,
+                        newDepartmentName: newDepartmentName
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`✅ Manager modified successfully!`);
+                    closeModifyManagerModal();
+                    await loadClubData();
+                    
+                    if (selectedManagerForModify.userId == user.id) {
+                        await refreshUserData();
+                    }
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error modifying manager:', error);
+                alert('Failed to modify manager');
+            }
+        }
+
+        function closeAddManagerModal() {
+            document.getElementById('addManagerModal').classList.add('hidden');
+            selectedUserForManager = null;
+        }
+
+        function closeModifyManagerModal() {
+            document.getElementById('modifyManagerModal').classList.add('hidden');
+            selectedManagerForModify = null;
+        }
+
+        
+        let selectedPresidentTransfer = null;
+
+        function openModifyPresidentModal() {
+            document.getElementById('presidentSearchSection').style.display = 'block';
+            document.getElementById('presidentTransferInfo').classList.add('hidden');
+            document.getElementById('presidentSearchInput').value = '';
+            selectedPresidentTransfer = null;
+            document.getElementById('modifyPresidentModal').classList.remove('hidden');
+        }
+
+        function closeModifyPresidentModal() {
+            document.getElementById('modifyPresidentModal').classList.add('hidden');
+            selectedPresidentTransfer = null;
+        }
+
+        async function searchUserForPresidentTransfer() {
+            const searchTerm = document.getElementById('presidentSearchInput').value.trim();
+            
+            if (!searchTerm) {
+                alert('Please enter a Student ID or Username');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/club/search-user/${user.id}/${encodeURIComponent(searchTerm)}`);
+                const data = await response.json();
+                
+                if (data.success && data.users.length > 0) {
+                    selectedPresidentTransfer = data.users[0];
+                    document.getElementById('presidentTransferUsername').textContent = selectedPresidentTransfer.Username;
+                    document.getElementById('presidentTransferUserId').textContent = selectedPresidentTransfer.UserID;
+                    document.getElementById('presidentTransferUserRole').textContent = selectedPresidentTransfer.Role || 'Member';
+                    document.getElementById('presidentTransferInfo').classList.remove('hidden');
+                    document.getElementById('presidentSearchSection').style.display = 'none';
+                } else {
+                    alert('User not found');
+                    selectedPresidentTransfer = null;
+                }
+            } catch (error) {
+                console.error('Error searching user:', error);
+                alert('Error searching user');
+            }
+        }
+
+        async function confirmResignPresident() {
+            if (confirm('⚠️ Are you sure you want to resign as President? You will become a regular member.')) {
+                try {
+                    const response = await fetch('/api/club/resign-president', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            presidentId: user.id,
+                            reason: ''
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        alert('✅ You have resigned as President');
+                        closeModifyPresidentModal();
+                        localStorage.removeItem('currentUser');
+                        window.location.href = 'index.html';
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                } catch (error) {
+                    console.error('Error resigning:', error);
+                    alert('Failed to resign');
+                }
+            }
+        }
+
+        async function confirmTransferPresidency() {
+            if (!selectedPresidentTransfer) {
+                alert('Please search and select a user to transfer presidency to');
+                return;
+            }
+            
+            if (confirm(`⚠️ Are you sure you want to transfer the presidency to ${selectedPresidentTransfer.Username}? You will become a regular member.`)) {
+                try {
+                    const response = await fetch('/api/club/transfer-presidency', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            currentPresidentId: user.id,
+                            newPresidentUserId: selectedPresidentTransfer.UserID,
+                            reason: ''
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        alert(`✅ Presidency transferred to ${selectedPresidentTransfer.Username}`);
+                        closeModifyPresidentModal();
+                        localStorage.removeItem('currentUser');
+                        window.location.href = 'index.html';
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                } catch (error) {
+                    console.error('Error transferring presidency:', error);
+                    alert('Failed to transfer presidency');
+                }
+            }
+        }
+        let selectedUserForAddVP = null;
+
+async function openAddVicePresidentModal() {
+    document.getElementById('addVpSearchSection').style.display = 'block';
+    document.getElementById('addVpUserInfo').classList.add('hidden');
+    document.getElementById('addVpSearchInput').value = '';
+    selectedUserForAddVP = null;
+    document.getElementById('addVpModal').classList.remove('hidden');
+}
+
+async function searchUserForAddVP() {
+    const searchTerm = document.getElementById('addVpSearchInput').value.trim();
+    
+    if (!searchTerm) {
+        alert('Please enter a Student ID or Username');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/club/search-user/${user.id}/${encodeURIComponent(searchTerm)}`);
+        const data = await response.json();
+        
+        if (data.success && data.users.length > 0) {
+            selectedUserForAddVP = data.users[0];
+            document.getElementById('addVpUsername').textContent = selectedUserForAddVP.Username;
+            document.getElementById('addVpUserId').textContent = selectedUserForAddVP.UserID;
+            document.getElementById('addVpLevel').textContent = selectedUserForAddVP.Level || 'N/A';
+            document.getElementById('addVpFaculty').textContent = selectedUserForAddVP.Faculty || 'N/A';
+            
+            let roleText = selectedUserForAddVP.Role || 'none';
+            if (roleText === 'none') {
+                roleText = 'Deactivated Account';
+            } else if (roleText === 'member') {
+                roleText = 'Member';
+            } else if (roleText === 'instructor') {
+                roleText = 'Instructor';
+            } else if (roleText === 'manager') {
+                roleText = 'Manager';
+            } else if (roleText === 'president') {
+                roleText = 'President';
+            } else if (roleText === 'vice president') {
+                roleText = 'Vice President';
+            }
+            
+            document.getElementById('addVpCurrentRole').textContent = roleText;
+            document.getElementById('addVpUserInfo').classList.remove('hidden');
+            document.getElementById('addVpSearchSection').style.display = 'none';
+        } else {
+            alert('User not found');
+            selectedUserForAddVP = null;
+        }
+    } catch (error) {
+        console.error('Error searching user:', error);
+        alert('Error searching user');
+    }
+}
+
+async function confirmAddVicePresident() {
+    if (!selectedUserForAddVP) {
+        alert('Please search and select a user first');
+        return;
+    }
+    
+    try {
+        const checkResponse = await fetch(`/api/club/check-vice-president`);
+        const checkData = await checkResponse.json();
+        
+        if (checkData.hasVP) {
+            if (!confirm(`⚠️ There is already a Vice President (${checkData.vpUsername}). Do you want to replace them with ${selectedUserForAddVP.Username}?`)) {
+                return;
+            }
+        }
+    } catch (error) {
+        console.error('Error checking existing VP:', error);
+    }
+    
+    if (confirm(`⚠️ Make ${selectedUserForAddVP.Username} the Vice President?`)) {
+        try {
+            const response = await fetch('/api/club/change-vice-president', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    presidentId: user.id,
+                    newVicePresidentId: selectedUserForAddVP.UserID
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                alert(`✅ ${selectedUserForAddVP.Username} is now Vice President!`);
+                closeAddVpModal();
+                await loadClubData();
+                await refreshUserData();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Error adding VP:', error);
+            alert('Failed to add Vice President');
+        }
+    }
+}
+
+function closeAddVpModal() {
+    document.getElementById('addVpModal').classList.add('hidden');
+    selectedUserForAddVP = null;
+}
+
+        const rolePermissions = {
+            none: {
+                sidebar: ['profile', 'notif', 'request'],
+                submitRequests: ['join', 'event-idea'],
+                showMyPosts: false,
+                showMyRequests: true,
+                showIncomingRequests: false,
+                showDepartmentSystem: false,
+                showClubSystem: false
+            },
+            member: {
+                sidebar: ['profile', 'notif', 'request'],
+                submitRequests: ['member-withdraw', 'event-idea', 'event-join', 'nomination'],
+                showMyPosts: false,
+                showMyRequests: true,
+                showIncomingRequests: false,
+                showDepartmentSystem: false,
+                showClubSystem: false
+            },
+            instructor: {
+                sidebar: ['profile', 'notif', 'request', 'sharepost'],
+                submitRequests: ['instructor-withdraw', 'event-idea', 'event-join', 'nomination'],
+                showMyPosts: true,
+                showMyRequests: true,
+                showIncomingRequests: false,
+                showDepartmentSystem: false,
+                showClubSystem: false
+            },
+            manager: {
+                sidebar: ['profile', 'notif', 'requests', 'request', 'sharepost', 'depa'],
+                submitRequests: ['manager-withdraw', 'event-idea', 'event-join', 'nomination'],
+                showMyPosts: true,
+                showMyRequests: true,
+                showIncomingRequests: true,
+                showDepartmentSystem: true,
+                showClubSystem: false
+            },
+            president: {
+                sidebar: ['profile', 'notif', 'requests', 'sharepost', 'club'],
+                submitRequests: [],
+                showMyPosts: true,
+                showMyRequests: false,
+                showIncomingRequests: true,
+                showDepartmentSystem: false,
+                showClubSystem: true
+            },
+            'vice president': {
+                sidebar: ['profile', 'notif', 'requests', 'sharepost', 'club'],
+                submitRequests: [],
+                showMyPosts: true,
+                showMyRequests: false,
+                showIncomingRequests: true,
+                showDepartmentSystem: false,
+                showClubSystem: true
+            }
+        };
+
+function enforceClubSystemVisibility() {
+    const clubButton = document.getElementById('btn-club');
+    const clubSection = document.getElementById('club-section');
+    
+    if (!permissions.showClubSystem) {
+        if (clubButton) clubButton.style.display = 'none';
+        if (clubSection) clubSection.classList.add('hidden');
+        console.log("🔒 Club System hidden for role:", currentUserRole);
+    } else {
+        if (clubButton) clubButton.style.display = 'flex';
+        console.log("🔓 Club System visible for role:", currentUserRole);
+    }
+}
+
+function applySidebarVisibility() {
+    const sidebarButtons = {
+        profile: document.getElementById('btn-profile'),
+        notif: document.getElementById('btn-notif'),
+        requests: document.getElementById('btn-requests'),
+        request: document.getElementById('btn-request'),
+        sharepost: document.getElementById('btn-sharepost'),
+        depa: document.getElementById('btn-depa'),
+        club: document.getElementById('btn-club')
+    };
+    
+    Object.values(sidebarButtons).forEach(btn => {
+        if (btn) btn.style.display = 'none';
+    });
+    
+    permissions.sidebar.forEach(buttonId => {
+        if (sidebarButtons[buttonId]) {
+            sidebarButtons[buttonId].style.display = 'flex';
+            console.log(`Showing button: ${buttonId} for role: ${currentUserRole}`);
+        }
+    });
+    
+    if (!permissions.showClubSystem && sidebarButtons.club) {
+        sidebarButtons.club.style.display = 'none';
+    }
+}
+function initRoleBasedUI() {
+    console.log("Initializing UI for role:", currentUserRole);
+    console.log("Permissions:", permissions);
+    
+    applySidebarVisibility();
+    applySubmitRequestVisibility();
+    applyProfileVisibility();
+    
+    if (!permissions.showClubSystem) {
+        const clubSection = document.getElementById('club-section');
+        if (clubSection) clubSection.classList.add('hidden');
+        const clubButton = document.getElementById('btn-club');
+        if (clubButton) clubButton.style.display = 'none';
+        console.log("Club System hidden for non-president/VP");
+    }
+    
+    if (!permissions.showDepartmentSystem) {
+        const deptSection = document.getElementById('depa-section');
+        if (deptSection) deptSection.classList.add('hidden');
+        console.log("Department System hidden for non-manager");
+    }
+    
+    const toManagerSection = document.getElementById('toManagerSection');
+    if (toManagerSection && currentUserRole === 'manager') {
+        toManagerSection.style.display = 'none';
+    }
+    
+    if (!permissions.showMyRequests) {
+        const requestsList = document.getElementById('requests-list');
+        if (requestsList) {
+            requestsList.innerHTML = `
+                <div class="text-center text-gray-400 py-8">
+                    <i class="fa-solid fa-info-circle text-2xl mb-2 block"></i>
+                    <p>You don't have any submitted requests as a club leader.</p>
+                    <p class="text-xs mt-1">You review and manage requests from members instead.</p>
+                </div>
+            `;
+        }
+    }
+if (currentUserRole === 'instructor') {
+    
+    setTimeout(() => {
+        const departmentSelect = document.getElementById('department');
+        if (departmentSelect && departmentSelect.value) {
+            console.log("🟢 Manually triggering updateSubdepartments for instructor");
+            updateSubdepartments();
+        }
+    }, 500);
+}
+}
+
+        function applySubmitRequestVisibility() {
+            const requestCategories = {
+                join: document.querySelector('.req-type-card[onclick*="join.html"]'),
+                withdrawMember: document.querySelector('.req-type-card[onclick*="withdraw.html"]'),
+                withdrawInstructor: document.querySelector('.req-type-card[onclick*="withdraw-position.html"]'),
+                eventIdea: document.querySelector('.req-type-card[onclick*="event-idea.html"]'),
+                eventJoin: document.querySelector('.req-type-card[onclick*="event-join.html"]'),
+                nomination: document.querySelector('.req-type-card[onclick*="nomination.html"]'),
+                withdrawManager: document.querySelectorAll('.req-type-card[onclick*="withdraw-position.html"]')[1]
+            };
+            
+            document.querySelectorAll('.req-type-card').forEach(card => {
+                card.style.display = 'none';
+            });
+            
+            permissions.submitRequests.forEach(requestType => {
+                switch(requestType) {
+                    case 'join':
+                        if (requestCategories.join) requestCategories.join.style.display = 'flex';
+                        break;
+                    case 'member-withdraw':
+                        if (requestCategories.withdrawMember) requestCategories.withdrawMember.style.display = 'flex';
+                        break;
+                    case 'instructor-withdraw':
+                        if (requestCategories.withdrawInstructor) requestCategories.withdrawInstructor.style.display = 'flex';
+                        break;
+                    case 'manager-withdraw':
+                        if (requestCategories.withdrawManager) requestCategories.withdrawManager.style.display = 'flex';
+                        break;
+                    case 'event-idea':
+                        if (requestCategories.eventIdea) requestCategories.eventIdea.style.display = 'flex';
+                        break;
+                    case 'event-join':
+                        if (requestCategories.eventJoin) requestCategories.eventJoin.style.display = 'flex';
+                        break;
+                    case 'nomination':
+                        if (requestCategories.nomination) requestCategories.nomination.style.display = 'flex';
+                        break;
+                }
+            });
+            
+            const toManagerSection = document.querySelector('#request-section .section-divider:first-child');
+            const toPresidentSection = document.querySelector('#request-section .section-divider:last-child');
+            
+            const managerVisible = permissions.submitRequests.some(r => ['join', 'member-withdraw', 'instructor-withdraw'].includes(r));
+            const presidentVisible = permissions.submitRequests.some(r => ['event-idea', 'event-join', 'nomination', 'manager-withdraw'].includes(r));
+            
+            if (toManagerSection && !managerVisible) toManagerSection.style.display = 'none';
+            if (toPresidentSection && !presidentVisible) toPresidentSection.style.display = 'none';
+        }
+
+        function applyProfileVisibility() {
+            const myPostsContainer = document.querySelector('.left');
+            const myRequestsContainer = document.querySelector('.right');
+            
+            if (!permissions.showMyPosts) {
+                if (myPostsContainer) myPostsContainer.style.display = 'none';
+            } else {
+                if (myPostsContainer) myPostsContainer.style.display = 'block';
+            }
+            
+            if (!permissions.showMyRequests) {
+                if (myRequestsContainer) myRequestsContainer.style.display = 'none';
+            } else {
+                if (myRequestsContainer) myRequestsContainer.style.display = 'block';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const postDescription = document.getElementById('postDescription');
+            if (postDescription) {
+                postDescription.addEventListener('input', updatePostWordCount);
+                updatePostWordCount();
+            }
+            const eventDateInput = document.getElementById('postEventDate');
+            if (eventDateInput) {
+                eventDateInput.addEventListener('change', validateEventDate);
+            }
+            
+            document.querySelectorAll('input[name="postType"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const eventFields = document.getElementById('eventDateTimeFields');
+                    if (this.value === 'Event' || this.value === 'Workshop') {
+                        eventFields.style.display = 'block';
+                    } else {
+                        eventFields.style.display = 'none';
+                    }
+                });
+            });
+            
+const deptSelect = document.getElementById('department');
+if (deptSelect) {
+    deptSelect.addEventListener('change', function() {
+        console.log("Department changed to:", this.value);
+        updateSubdepartments();
+    });
+}
+        });
+
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('memberModal');
+            const modifyModal = document.getElementById('modifyModal');
+            const addModal = document.getElementById('addManagerModal');
+            const modifyManagerModal = document.getElementById('modifyManagerModal');
+            const presidentModal = document.getElementById('modifyPresidentModal');
+            
+            if (event.target === modal) {
+                closeModal();
+            }
+            if (event.target === modifyModal) {
+                closeModifyModal();
+            }
+            if (event.target === addModal) {
+                closeAddManagerModal();
+            }
+            if (event.target === modifyManagerModal) {
+                closeModifyManagerModal();
+            }
+            if (event.target === presidentModal) {
+                closeModifyPresidentModal();
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+
+        const logoutBtn = document.querySelector('.text-gray-400.hover\\:text-red-400');
+        if (logoutBtn) {
+            logoutBtn.onclick = logout;
+        }
+
+
+        async function startup() {
+            if (!checkAccountStatus()) {
+                return;
+            }
+            
+            const currentUserRole = user ? user.role : null;
+            let permissions = rolePermissions[currentUserRole] || rolePermissions.none;
+
+            if (!user || !user.id) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            console.log("Loading user departments on startup...");
+            await loadUserDepartments();
+            
+            loadProfileData();
+
+            initRoleBasedUI();
+            checkNewNotifications();
+            checkNewRequests();
+
+            if (currentUserRole) {
+                if (typeof updateDropdownsBasedOnRole === 'function') {
+                    updateDropdownsBasedOnRole(currentUserRole);
+                }
+            }
+
+            setInterval(() => {
+                checkNewNotifications();
+                checkNewRequests();
+            }, 30000);
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const requestedSection = urlParams.get('section');
+            
+            let startSection = 'profile-section';
+
+            if (requestedSection && permissions.sidebar.includes(requestedSection.split('-')[0])) {
+                startSection = requestedSection;
+            } else if (permissions.sidebar && permissions.sidebar.length > 0) {
+                startSection = `${permissions.sidebar[0]}-section`;
+            }
+
+            if (typeof window.showSection === 'function') {
+                window.showSection(startSection);
+            } else {
+                console.error("showSection not found!");
+            }
+        }
+
+    
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', startup);
+        } else {
+            startup();
+        }
+
+        setTimeout(function() {
+            if (document.getElementById('profile-section') && !document.getElementById('profile-section').classList.contains('hidden')) {
+                loadProfileData();
+                loadUserRequests(user.id);
+                loadUserPosts();
+            }
+        }, 100);
+
+        window.openPanel = function(page) {
+            console.log("FINAL openPanel called:", page);
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            
+            if (page && page.toLowerCase().includes('reply')) {
+                let url = page;
+                if (currentUser) {
+                    url = page.includes('?') ? `${page}&role=${currentUser.role}` : `${page}?role=${currentUser.role}`;
+                }
+                window.open(url, '_blank');
+                return;
+            }
+            
+            let url = currentUser ? `${page}?role=${currentUser.role}` : 'login.html';
+            window.open(url, '_blank');
+        };
+
+        async function refreshUserData() {
+            console.log("========== REFRESH USER DATA START ==========");
+            console.log("1. Current user object before refresh:", user);
+            
+            try {
+                console.log("2. Fetching user data from: /api/user/" + user.id);
+                const userResponse = await fetch(`/api/user/${user.id}`);
+                const userData = await userResponse.json();
+                console.log("3. User API response:", userData);
+                
+                if (userData.success && userData.user) {
+                    Object.assign(user, userData.user);
+                    console.log("4. Updated basic user info:", user);
+                    
+                    console.log("5. Fetching departments...");
+                    const deptResponse = await fetch(`/api/user/departments/${user.id}`);
+                    const deptData = await deptResponse.json();
+                    console.log("6. Departments response:", deptData);
+                    
+                    if (deptData.success) {
+                        user.departments = deptData.departments;
+                        console.log("7. User departments set to:", user.departments);
+                    }
+                    
+                    
+                    const updatedUser = { ...user };
+                    localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+                    
+                    console.log("8. Reloading profile data...");
+                    loadProfileData();
+                    
+                    if (user.id) {
+                        await loadUserRequests(user.id);
+                        await loadUserPosts();
+                    }
+                    
+                    console.log("========== REFRESH SUCCESSFUL ==========");
+                    return true;
+                } else {
+                    console.error("========== REFRESH FAILED ==========");
+                    return false;
+                }
+            } catch (error) {
+                console.error("========== REFRESH ERROR ==========");
+                console.error(error);
+                return false;
+            }
+        }
+
+        async function confirmModify() {
+            console.log("========== CONFIRM MODIFY START ==========");
+            
+            if (!selectedUserForModify) {
+                alert('No user selected for modification');
+                return;
+            }
+            
+            try {
+                const newRole = document.getElementById('modifyRole').value;
+                const newSubDepartment = document.getElementById('modifySubDept').value;
+                
+                console.log("New role:", newRole);
+                console.log("New sub-department:", newSubDepartment);
+                
+                if (!newSubDepartment) {
+                    alert('Please select a sub-department');
+                    return;
+                }
+                
+                const subDepartmentToDepartment = {
+                    'Training and Education Sub-department': 1,
+                    'Research Sub-department': 1,
+                    'Workshops Sub-department': 1,
+                    'Events Sub-department': 3,
+                    'Media and Communication Sub-department': 3,
+                    'Administration Sub-department': 2,
+                    'Partnership and Sponsorship Sub-department': 2,
+                    'Logistics and Equipment Sub-department': 2
+                };
+                
+                const newDepartmentId = subDepartmentToDepartment[newSubDepartment];
+                
+                const requestBody = {
+                    managerId: user.id,
+                    userId: selectedUserForModify.userId,
+                    currentRole: selectedUserForModify.currentRole,
+                    newRole: newRole,
+                    newSubDepartmentName: newSubDepartment,
+                    newDepartmentId: newDepartmentId
+                };
+                
+                console.log("Request body:", requestBody);
+                
+                const modifiedUserId = selectedUserForModify.userId;
+                
+                const response = await fetch('/api/department/modify-member', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`✅ ${selectedUserForModify.currentRole} modified successfully!`);
+                    closeModifyModal();
+                    await loadDepartmentData();
+                    
+                    if (modifiedUserId == user.id) {
+                        console.log("✅ Refreshing profile for current user...");
+                        await refreshUserData();
+                    }
+                } else {
+                    alert('Error: ' + data.message);
+                }
+                
+            } catch (error) {
+                console.error("Error in confirmModify:", error);
+                alert('Failed to modify member: ' + error.message);
+            }
+            console.log("========== CONFIRM MODIFY END ==========");
+        }
+    
+        confirmModify.isProcessing = false;
+
+        function closeModal() {
+            document.getElementById('memberModal').classList.add('hidden');
+            selectedUserForAdd = null;
+        }
+
+        function closeModifyModal() {
+            document.getElementById('modifyModal').classList.add('hidden');
+            selectedUserForModify = null;
+        }
+
+        async function loadUserDepartments() {
+            try {
+                const response = await fetch(`/api/user/departments/${user.id}`);
+                const data = await response.json();
+                
+                if (data.success && data.departments) {
+                    user.departments = data.departments;
+                    console.log("✅ Loaded user departments:", user.departments);
+                    
+                    const storedUser = JSON.parse(localStorage.getItem('currentUser'));
+                    storedUser.departments = data.departments;
+                    localStorage.setItem('currentUser', JSON.stringify(storedUser));
+                    
+                    return true;
+                }
+            } catch (error) {
+                console.error("Error loading user departments:", error);
+            }
+            return false;
+        }
+
+        const permissions = rolePermissions[currentUserRole] || rolePermissions.none;
+
+        window.showSection = function(sectionId) {
+    console.log("showSection called with:", sectionId);
+    
+    if (sectionId === 'club-section' && !permissions.showClubSystem) {
+        console.warn("Access denied: Cannot view Club System");
+        alert("You don't have permission to access the Club System.");
+        return;
+    }
+    
+    if (sectionId === 'depa-section' && !permissions.showDepartmentSystem) {
+        console.warn("Access denied: Cannot view Department System");
+        alert("You don't have permission to access the Department System.");
+        return;
+    }
+    
+    document.querySelectorAll('.content-area').forEach(div => div.classList.add('hidden'));
+    const target = document.getElementById(sectionId);
+    if (target) {
+        target.classList.remove('hidden');
+        console.log("Showing section:", sectionId);
+    } else {
+        console.error("Section not found:", sectionId);
+    }
+    
+    if (sectionId === 'profile-section') {
+        if (typeof loadProfileData === 'function') loadProfileData();
+        if (user && user.id && typeof loadUserRequests === 'function') loadUserRequests(user.id);
+        if (typeof loadUserPosts === 'function') loadUserPosts();
+    }
+    if (sectionId === 'requests-section' && typeof displayRequests === 'function') {
+        displayRequests();
+        const badge = document.getElementById('requestsBadge');
+        if (badge) badge.style.display = 'none';
+    }
+    if (sectionId === 'notification-section' && typeof displayInbox === 'function') {
+        displayInbox();
+        const badge = document.getElementById('notifBadge');
+        if (badge) badge.style.display = 'none';
+    }
+    if (sectionId === 'depa-section' && typeof loadDepartmentData === 'function') {
+        loadDepartmentData();
+    }
+    if (sectionId === 'club-section' && typeof loadClubData === 'function') {
+        loadClubData();
+    }
+    
+    document.querySelectorAll('.btn-sidebar').forEach(btn => btn.classList.remove('active'));
+    const btnMap = {
+        'profile-section': 'btn-profile',
+        'notification-section': 'btn-notif',
+        'requests-section': 'btn-requests',
+        'request-section': 'btn-request',
+        'sharepost-section': 'btn-sharepost',
+        'depa-section': 'btn-depa',
+        'club-section': 'btn-club'
+    };
+    const activeBtn = document.getElementById(btnMap[sectionId]);
+    if (activeBtn) activeBtn.classList.add('active');
+};
+
+        window.refreshUserData = refreshUserData;
+        window.confirmTransferPresidency = confirmTransferPresidency;
+        window.openModifyPresidentModal = openModifyPresidentModal;
+        window.closeModifyPresidentModal = closeModifyPresidentModal;
+        window.searchUserForPresidentTransfer = searchUserForPresidentTransfer;
+        window.confirmResignPresident = confirmResignPresident;
+        window.loadClubData = loadClubData;
+        window.renderClubTable = renderClubTable;
+        window.searchClubMembers = searchClubMembers;
+        window.clearClubSearch = clearClubSearch;
+        window.loadDepartmentsForClub = loadDepartmentsForClub;
+        window.openAddManagerModal = openAddManagerModal;
+        window.searchUserForManager = searchUserForManager;
+        window.confirmAddManager = confirmAddManager;
+        window.removeManager = removeManager;
+        window.promoteToManager = promoteToManager;
+        window.openModifyManagerModal = openModifyManagerModal;
+        window.confirmModifyManager = confirmModifyManager;
+        window.closeAddManagerModal = closeAddManagerModal;
+        window.closeModifyManagerModal = closeModifyManagerModal;
+        window.openAddModal = openAddModal;
+        window.closeModal = closeModal;
+        window.closeModifyModal = closeModifyModal;
+        window.confirmModify = confirmModify;
+        window.openModifyModal = openModifyModal;
+        window.removeMember = removeMember;
+        window.confirmAdd = confirmAdd;
+        window.searchUserToAdd = searchUserToAdd;
+        window.loadSubDepartments = loadSubDepartments;
+        window.clearSearch = clearSearch;
+        window.searchMember = searchMember;
+        window.renderDepartmentTable = renderDepartmentTable;
+        window.loadDepartmentData = loadDepartmentData;
+        window.clearRequests = clearRequests;
+        window.loadUserPosts = loadUserPosts;
+        window.deleteUserPost = deleteUserPost;
+        window.clearMyPosts = clearMyPosts;
+        window.submitPost = submitPost;
+        window.checkNewNotifications = checkNewNotifications;
+        window.checkNewRequests = checkNewRequests;
+        window.clearAll = clearAll;
+        window.markAsSeen = markAsSeen;
+        window.deleteRequest = deleteRequest;
+        window.logout = logout;
+        window.loadUserRequests = loadUserRequests;
+        window.displayInbox = displayInbox;
+        window.openReplyPanel = openReplyPanel;
+        window.markPostAsRead = markPostAsRead;
+        window.displayRequests = displayRequests;
+        window.loadUserDepartments = loadUserDepartments; 
+        window.startup = startup;
+        window.removeVicePresident= removeVicePresident;
+        window.openModifyVicePresidentModal = openModifyVicePresidentModal;
+        window.searchUserForVP =  searchUserForVP;
+        window.confirmChangeVP = confirmChangeVP;
+        window.closeModifyVpModal = closeModifyVpModal;
+        window.openAddVicePresidentModal = openAddVicePresidentModal;
+        window.searchUserForAddVP = searchUserForAddVP;
+        window.confirmAddVicePresident = confirmAddVicePresident;
+        window.closeAddVpModal = closeAddVpModal;
+    </script>
+  
+</body>
+</html>
